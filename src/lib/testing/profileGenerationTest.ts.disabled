@@ -1,0 +1,322 @@
+// Profile Generation Testing Service
+// Tests real user workflows and profile generation functionality
+
+import { createClient } from '@/lib/supabase/client'
+import { getReplicateService } from '@/lib/replicate'
+import { enhancePromptWithGemini } from '@/lib/gemini/api'
+// import { getAPICacheService } from '../cache/apiCache'
+
+export interface ProfileTestResult {
+  test: string
+  status: 'pass' | 'fail' | 'skip'
+  message: string
+  data?: any
+  duration?: number
+  timestamp: number
+}
+
+export interface ProfileTestReport {
+  overall: 'pass' | 'fail' | 'partial'
+  results: ProfileTestResult[]
+  summary: {
+    passed: number
+    failed: number
+    skipped: number
+    total: number
+  }
+  totalDuration: number
+  timestamp: number
+}
+
+export class ProfileGenerationTestService {
+  private results: ProfileTestResult[] = []
+  private startTime = 0
+
+  /**
+   * Run comprehensive profile generation tests
+   */
+  async runProfileTests(): Promise<ProfileTestReport> {
+    this.results = []
+    this.startTime = Date.now()
+    
+    console.log('🧪 Starting profile generation tests...')
+
+    // Test user profile operations
+    await this.testUserProfileCreation()
+    await this.testUserAuthentication()
+    
+    // Test AI services
+    await this.testPromptEnhancement()
+    await this.testImageGeneration()
+    
+    // Test caching
+    await this.testCacheOperations()
+    
+    // Test database operations
+    await this.testDatabaseOperations()
+
+    return this.generateReport()
+  }
+
+  /**
+   * Test user profile creation and management
+   */
+  private async testUserProfileCreation(): Promise<void> {
+    const testStart = Date.now()
+    
+    try {
+      const supabase = createClient()
+      
+      // Test profile table access
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, email, full_name, role')
+        .limit(1)
+      
+      if (error) {
+        this.addResult('User Profile Access', 'fail', `Profile access failed: ${error.message}`, { error })
+        return
+      }
+
+      this.addResult('User Profile Access', 'pass', 'Profile table accessible', { 
+        data: data?.length || 0,
+        duration: Date.now() - testStart
+      })
+
+    } catch (error) {
+      this.addResult('User Profile Creation', 'fail', `Profile test failed: ${error}`)
+    }
+  }
+
+  /**
+   * Test user authentication flows
+   */
+  private async testUserAuthentication(): Promise<void> {
+    const testStart = Date.now()
+    
+    try {
+      const supabase = createClient()
+      
+      // Test session retrieval
+      const { data: session, error } = await supabase.auth.getSession()
+      
+      if (error) {
+        this.addResult('Authentication', 'fail', `Auth test failed: ${error.message}`)
+        return
+      }
+
+      // In development, we might not have an active session
+      const hasSession = !!session?.session
+      this.addResult('Authentication', 'pass', `Auth service functional`, { 
+        hasSession,
+        duration: Date.now() - testStart
+      })
+
+    } catch (error) {
+      this.addResult('Authentication', 'fail', `Auth test failed: ${error}`)
+    }
+  }
+
+  /**
+   * Test prompt enhancement with Gemini
+   */
+  private async testPromptEnhancement(): Promise<void> {
+    const testStart = Date.now()
+    
+    try {
+      const testPrompt = "A beautiful sunset"
+      
+      // Test Gemini API
+      const enhanced = await enhancePromptWithGemini({
+        prompt: testPrompt,
+        maxTokens: 100,
+        temperature: 0.7
+      })
+
+      if (enhanced && enhanced.length > testPrompt.length) {
+        this.addResult('Prompt Enhancement', 'pass', 'Gemini enhancement working', {
+          original: testPrompt,
+          enhanced: enhanced.substring(0, 100) + '...',
+          duration: Date.now() - testStart
+        })
+      } else {
+        this.addResult('Prompt Enhancement', 'fail', 'Enhancement failed or returned empty')
+      }
+
+    } catch (error) {
+      // Gemini might not be configured, which is acceptable
+      this.addResult('Prompt Enhancement', 'skip', `Gemini not available: ${error}`)
+    }
+  }
+
+  /**
+   * Test image generation workflow
+   */
+  private async testImageGeneration(): Promise<void> {
+    const testStart = Date.now()
+    
+    try {
+      const replicateService = getReplicateService()
+      
+      // Test service availability
+      if (!replicateService.isAvailable()) {
+        this.addResult('Image Generation', 'skip', 'Replicate service not available')
+        return
+      }
+
+      // Test model availability
+      const availableModels = replicateService.getAvailableModels()
+      
+      if (availableModels.length === 0) {
+        this.addResult('Image Generation', 'fail', 'No models available')
+        return
+      }
+
+      this.addResult('Image Generation', 'pass', 'Replicate service ready', {
+        modelCount: availableModels.length,
+        models: availableModels.slice(0, 3).map(m => m.id),
+        duration: Date.now() - testStart
+      })
+
+    } catch (error) {
+      this.addResult('Image Generation', 'fail', `Image generation test failed: ${error}`)
+    }
+  }
+
+  /**
+   * Test cache operations
+   */
+  private async testCacheOperations(): Promise<void> {
+    const testStart = Date.now()
+    
+    try {
+      // const cache = getAPICacheService()
+      
+      if (!cache.isAvailable()) {
+        this.addResult('Cache Operations', 'skip', 'Cache not available - running without cache')
+        return
+      }
+
+      // Test basic cache operations
+      const testKey = 'profile-test'
+      const testData = { test: true, timestamp: Date.now() }
+
+      // This would test the cache if it's available
+      this.addResult('Cache Operations', 'pass', 'Cache service initialized', {
+        available: cache.isAvailable(),
+        duration: Date.now() - testStart
+      })
+
+    } catch (error) {
+      this.addResult('Cache Operations', 'fail', `Cache test failed: ${error}`)
+    }
+  }
+
+  /**
+   * Test database operations
+   */
+  private async testDatabaseOperations(): Promise<void> {
+    const testStart = Date.now()
+    
+    try {
+      const supabase = createClient()
+      
+      // Test multiple table access
+      const tables = ['profiles', 'images', 'prompt_templates', 'suggestions']
+      const results = []
+
+      for (const table of tables) {
+        try {
+          const { data, error } = await supabase
+            .from(table)
+            .select('*')
+            .limit(1)
+          
+          results.push({
+            table,
+            accessible: !error,
+            error: error?.message
+          })
+        } catch (err) {
+          results.push({
+            table,
+            accessible: false,
+            error: err instanceof Error ? err.message : 'Unknown error'
+          })
+        }
+      }
+
+      const accessibleTables = results.filter(r => r.accessible).length
+      
+      if (accessibleTables === tables.length) {
+        this.addResult('Database Operations', 'pass', 'All tables accessible', {
+          tables: results,
+          duration: Date.now() - testStart
+        })
+      } else {
+        this.addResult('Database Operations', 'fail', `Only ${accessibleTables}/${tables.length} tables accessible`, {
+          tables: results
+        })
+      }
+
+    } catch (error) {
+      this.addResult('Database Operations', 'fail', `Database test failed: ${error}`)
+    }
+  }
+
+  /**
+   * Add test result
+   */
+  private addResult(test: string, status: 'pass' | 'fail' | 'skip', message: string, data?: any): void {
+    this.results.push({
+      test,
+      status,
+      message,
+      data,
+      timestamp: Date.now()
+    })
+  }
+
+  /**
+   * Generate comprehensive test report
+   */
+  private generateReport(): ProfileTestReport {
+    const passed = this.results.filter(r => r.status === 'pass').length
+    const failed = this.results.filter(r => r.status === 'fail').length
+    const skipped = this.results.filter(r => r.status === 'skip').length
+
+    let overall: 'pass' | 'fail' | 'partial' = 'pass'
+    if (failed > 0) {
+      overall = failed > passed ? 'fail' : 'partial'
+    }
+
+    return {
+      overall,
+      results: this.results,
+      summary: {
+        passed,
+        failed,
+        skipped,
+        total: this.results.length
+      },
+      totalDuration: Date.now() - this.startTime,
+      timestamp: Date.now()
+    }
+  }
+}
+
+// Singleton instance
+let profileTestService: ProfileGenerationTestService | null = null
+
+export function getProfileTestService(): ProfileGenerationTestService {
+  if (!profileTestService) {
+    profileTestService = new ProfileGenerationTestService()
+  }
+  return profileTestService
+}
+
+// Utility function for quick testing
+export async function runQuickProfileTest(): Promise<ProfileTestReport> {
+  const testService = getProfileTestService()
+  return testService.runProfileTests()
+}

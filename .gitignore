@@ -1,0 +1,222 @@
+# Dependencies
+node_modules/
+/.pnp
+.pnp.js
+
+# Testing
+/coverage
+*.lcov
+
+# Next.js
+/.next/
+/out/
+next-env.d.ts
+
+# Production
+/build
+/dist
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+
+# ESLint
+.eslintcache
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# nyc test coverage
+.nyc_output
+
+# Grunt intermediate storage (https://gruntjs.com/creating-plugins#storing-task-files)
+.grunt
+
+# Bower dependency directory (https://bower.io/)
+bower_components
+
+# node-waf configuration
+.lock-wscript
+
+# Compiled binary addons (https://nodejs.org/api/addons.html)
+build/Release
+
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# Snowpack dependency directory (https://snowpack.dev/)
+web_modules/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# parcel-bundler cache (https://parceljs.org/)
+.cache
+.parcel-cache
+
+# Next.js build output
+.next
+out
+
+# Nuxt.js build / generate output
+.nuxt
+dist
+
+# Gatsby files
+.cache/
+public
+
+# Storybook build outputs
+.out
+.storybook-out
+
+# Temporary folders
+tmp/
+temp/
+
+# Editor directories and files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Local development files
+*.local
+
+# Supabase
+.branches
+.temp
+
+# Testing files
+test-results/
+playwright-report/
+playwright/.cache/
+
+# Development documentation (keep essential docs)
+AUTOMATIC_PROMPT_SYSTEM_IMPLEMENTATION.md
+BROWSER_TESTING_IMPLEMENTATION.md
+CHAT_EDITING_SYSTEM_PLAN.md
+CHAT_EDITING_UX_MOCKUPS.md
+COMPONENT_INTEGRATION_IMPLEMENTATION.md
+COMPREHENSIVE_ERROR_HANDLING_IMPLEMENTATION.md
+COMPREHENSIVE_INTEGRATION_SUMMARY.md
+COMPREHENSIVE_TESTING_REPORT.md
+CORE_MODES_FUNCTIONALITY_IMPLEMENTATION.md
+DATABASE_MIGRATION_INSTRUCTIONS.md
+END_TO_END_WORKFLOW_TESTING_IMPLEMENTATION.md
+FINAL_TESTING_VERIFICATION.md
+FLUX_KONTEXT_INTEGRATION_SUMMARY.md
+GLASSMORPHISM_NAVIGATION_ENHANCEMENT.md
+INFRASTRUCTURE_ENHANCEMENT_GUIDE.md
+INFRASTRUCTURE_SOLUTIONS.md
+MINU_AI_OPTIMIZATION_HANDOFF.md
+MINU_AI_UX_OPTIMIZATION_PLAN.md
+MOCK_DATA_ELIMINATION_IMPLEMENTATION.md
+MODEL_VERIFICATION_RESULTS.md
+OPTIMIZATION_COMPLETION_SUMMARY.md
+OPTIMIZED_LOADING_ERROR_HANDLING_IMPLEMENTATION.md
+PHASE3_TESTING_REPORT.md
+PHASE_2_DATABASE_SCHEMA.sql
+PHASE_2_DATABASE_SCHEMA_CORRECTED.sql
+PHASE_2_HANDOFF_NEXT_SESSION.md
+PRODUCTION_DEPLOYMENT_CHECKLIST.md
+PRODUCTION_DEPLOYMENT_REPORT.md
+PRODUCTION_READINESS_VALIDATION.md
+PROGRESSIVE_DISCLOSURE_IMPLEMENTATION.md
+REPLICATE_COMPREHENSIVE_GUIDE.md
+REPLICATE_MODELS_REFERENCE.md
+RESPONSIVE_BREAKPOINT_IMPLEMENTATION.md
+SERVICE_ARCHITECTURE_CLEANUP.md
+SYSTEM_TESTING_IMPLEMENTATION.md
+TECHNICAL_ARCHITECTURE.md
+TECHNICAL_ARCHITECTURE_GUIDE.md
+TESTING_VALIDATION_CHECKLIST.md
+UNIFIED_DESIGN_SYSTEM_IMPLEMENTATION.md
+UNIFIED_NAVIGATION_DESIGN.md
+VIDEO_GENERATION_BUSINESS_MODEL.md
+VIDEO_GENERATION_INTEGRATION_PLAN.md
+database-migration-instructions.md
+database-optimization-setup.md
+database_structure.txt
+flux-mini-app-development-plan.md
+missing_prompt_migration.sql
+prd_flux_mini_app.md
+project_structure.txt
+rapid-development-tools.csv
+
+# Test files
+manual-browser-test.js
+production-readiness-test.js
+test-api.js
+test-app.js
+test-enhance-api.js
+temp-tests/
+
+# Image files (keep logo)
+image*.png
+*.jpg
+*.jpeg
+*.gif
+*.bmp
+*.tiff
+*.ico
+*.svg
+!public/*.svg
+!public/*.png
+!public/*.ico

@@ -1,0 +1,274 @@
+{
+  "suggestions": [
+    {
+      "category": "camera",
+      "title": "DSLR Professional",
+      "text": "shot with professional DSLR camera",
+      "description": "High-end professional camera equipment",
+      "color": "#ef4444",
+      "tags": ["professional", "equipment", "quality"],
+      "isPublic": true
+    },
+    {
+      "category": "camera",
+      "title": "Film Photography",
+      "text": "vintage film photography style",
+      "description": "Classic analog film aesthetic",
+      "color": "#f97316",
+      "tags": ["vintage", "analog", "retro"],
+      "isPublic": true
+    },
+    {
+      "category": "camera",
+      "title": "Macro Lens",
+      "text": "extreme close-up macro photography",
+      "description": "Ultra-detailed close-up shots",
+      "color": "#eab308",
+      "tags": ["macro", "detail", "close-up"],
+      "isPublic": true
+    },
+    {
+      "category": "camera",
+      "title": "Wide Angle",
+      "text": "wide-angle lens perspective",
+      "description": "Expansive field of view",
+      "color": "#22c55e",
+      "tags": ["wide", "perspective", "landscape"],
+      "isPublic": true
+    },
+    {
+      "category": "camera",
+      "title": "Telephoto",
+      "text": "telephoto lens compression",
+      "description": "Compressed perspective with shallow depth",
+      "color": "#3b82f6",
+      "tags": ["telephoto", "compression", "portrait"],
+      "isPublic": true
+    },
+    {
+      "category": "style",
+      "title": "Cinematic",
+      "text": "cinematic lighting and composition",
+      "description": "Movie-like visual style",
+      "color": "#8b5cf6",
+      "tags": ["cinematic", "dramatic", "movie"],
+      "isPublic": true
+    },
+    {
+      "category": "style",
+      "title": "Portrait",
+      "text": "professional portrait style",
+      "description": "Classic portrait photography",
+      "color": "#ec4899",
+      "tags": ["portrait", "people", "professional"],
+      "isPublic": true
+    },
+    {
+      "category": "style",
+      "title": "Street Photography",
+      "text": "candid street photography",
+      "description": "Authentic urban moments",
+      "color": "#06b6d4",
+      "tags": ["street", "candid", "urban"],
+      "isPublic": true
+    },
+    {
+      "category": "style",
+      "title": "Fine Art",
+      "text": "fine art photography style",
+      "description": "Artistic and conceptual approach",
+      "color": "#84cc16",
+      "tags": ["art", "conceptual", "creative"],
+      "isPublic": true
+    },
+    {
+      "category": "style",
+      "title": "Documentary",
+      "text": "documentary photography approach",
+      "description": "Journalistic storytelling style",
+      "color": "#f59e0b",
+      "tags": ["documentary", "story", "journalism"],
+      "isPublic": true
+    },
+    {
+      "category": "lighting",
+      "title": "Golden Hour",
+      "text": "warm golden hour lighting",
+      "description": "Soft, warm natural light",
+      "color": "#fbbf24",
+      "tags": ["golden", "warm", "natural"],
+      "isPublic": true
+    },
+    {
+      "category": "lighting",
+      "title": "Blue Hour",
+      "text": "soft blue hour atmosphere",
+      "description": "Twilight's magical blue light",
+      "color": "#3b82f6",
+      "tags": ["blue", "twilight", "atmospheric"],
+      "isPublic": true
+    },
+    {
+      "category": "lighting",
+      "title": "Studio Lighting",
+      "text": "professional studio lighting setup",
+      "description": "Controlled artificial lighting",
+      "color": "#6b7280",
+      "tags": ["studio", "controlled", "artificial"],
+      "isPublic": true
+    },
+    {
+      "category": "lighting",
+      "title": "Natural Light",
+      "text": "soft natural window light",
+      "description": "Gentle indoor natural lighting",
+      "color": "#10b981",
+      "tags": ["natural", "soft", "window"],
+      "isPublic": true
+    },
+    {
+      "category": "lighting",
+      "title": "Dramatic",
+      "text": "dramatic high contrast lighting",
+      "description": "Bold shadows and highlights",
+      "color": "#dc2626",
+      "tags": ["dramatic", "contrast", "bold"],
+      "isPublic": true
+    },
+    {
+      "category": "mood",
+      "title": "Serene",
+      "text": "peaceful and serene atmosphere",
+      "description": "Calm and tranquil feeling",
+      "color": "#06b6d4",
+      "tags": ["peaceful", "calm", "tranquil"],
+      "isPublic": true
+    },
+    {
+      "category": "mood",
+      "title": "Energetic",
+      "text": "dynamic and energetic mood",
+      "description": "Vibrant and lively atmosphere",
+      "color": "#f59e0b",
+      "tags": ["dynamic", "vibrant", "lively"],
+      "isPublic": true
+    },
+    {
+      "category": "mood",
+      "title": "Mysterious",
+      "text": "mysterious and moody atmosphere",
+      "description": "Enigmatic and intriguing mood",
+      "color": "#7c3aed",
+      "tags": ["mysterious", "moody", "enigmatic"],
+      "isPublic": true
+    },
+    {
+      "category": "mood",
+      "title": "Romantic",
+      "text": "soft romantic ambiance",
+      "description": "Tender and intimate feeling",
+      "color": "#ec4899",
+      "tags": ["romantic", "tender", "intimate"],
+      "isPublic": true
+    },
+    {
+      "category": "mood",
+      "title": "Dramatic",
+      "text": "intense dramatic mood",
+      "description": "Powerful emotional impact",
+      "color": "#dc2626",
+      "tags": ["dramatic", "intense", "emotional"],
+      "isPublic": true
+    },
+    {
+      "category": "composition",
+      "title": "Rule of Thirds",
+      "text": "composed using rule of thirds",
+      "description": "Classic compositional guideline",
+      "color": "#22c55e",
+      "tags": ["composition", "rule", "classic"],
+      "isPublic": true
+    },
+    {
+      "category": "composition",
+      "title": "Symmetrical",
+      "text": "perfectly symmetrical composition",
+      "description": "Balanced and harmonious layout",
+      "color": "#3b82f6",
+      "tags": ["symmetrical", "balanced", "harmony"],
+      "isPublic": true
+    },
+    {
+      "category": "composition",
+      "title": "Leading Lines",
+      "text": "strong leading lines composition",
+      "description": "Lines that guide the eye",
+      "color": "#f97316",
+      "tags": ["lines", "guide", "direction"],
+      "isPublic": true
+    },
+    {
+      "category": "composition",
+      "title": "Depth of Field",
+      "text": "shallow depth of field",
+      "description": "Selective focus technique",
+      "color": "#8b5cf6",
+      "tags": ["depth", "focus", "selective"],
+      "isPublic": true
+    },
+    {
+      "category": "composition",
+      "title": "Minimalist",
+      "text": "clean minimalist composition",
+      "description": "Simple and uncluttered design",
+      "color": "#6b7280",
+      "tags": ["minimalist", "clean", "simple"],
+      "isPublic": true
+    },
+    {
+      "category": "quality",
+      "title": "High Resolution",
+      "text": "8K ultra high resolution",
+      "description": "Maximum image quality",
+      "color": "#ef4444",
+      "tags": ["8K", "resolution", "quality"],
+      "isPublic": true
+    },
+    {
+      "category": "quality",
+      "title": "Sharp Focus",
+      "text": "tack sharp focus throughout",
+      "description": "Crystal clear detail",
+      "color": "#22c55e",
+      "tags": ["sharp", "focus", "detail"],
+      "isPublic": true
+    },
+    {
+      "category": "quality",
+      "title": "HDR",
+      "text": "HDR processing for dynamic range",
+      "description": "Enhanced tonal range",
+      "color": "#3b82f6",
+      "tags": ["HDR", "dynamic", "range"],
+      "isPublic": true
+    },
+    {
+      "category": "quality",
+      "title": "Professional",
+      "text": "professional photography quality",
+      "description": "Commercial grade standards",
+      "color": "#8b5cf6",
+      "tags": ["professional", "commercial", "quality"],
+      "isPublic": true
+    },
+    {
+      "category": "quality",
+      "title": "Award Winning",
+      "text": "award-winning photography",
+      "description": "Competition level excellence",
+      "color": "#fbbf24",
+      "tags": ["award", "winning", "excellence"],
+      "isPublic": true
+    }
+  ]
+}

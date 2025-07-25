@@ -1,0 +1,320 @@
+/* Minu.AI Spacing System - Consistent Layout Rhythm */
+
+/* Spacing Scale - 8px Base Unit for Perfect Alignment */
+:root {
+  /* Base spacing unit - 8px for perfect alignment */
+  --space-unit: 0.5rem; /* 8px */
+  
+  /* Spacing Scale - Multiples of 8px */
+  --space-0: 0;
+  --space-1: calc(var(--space-unit) * 0.5);  /* 4px */
+  --space-2: var(--space-unit);              /* 8px */
+  --space-3: calc(var(--space-unit) * 1.5);  /* 12px */
+  --space-4: calc(var(--space-unit) * 2);    /* 16px */
+  --space-5: calc(var(--space-unit) * 2.5);  /* 20px */
+  --space-6: calc(var(--space-unit) * 3);    /* 24px */
+  --space-8: calc(var(--space-unit) * 4);    /* 32px */
+  --space-10: calc(var(--space-unit) * 5);   /* 40px */
+  --space-12: calc(var(--space-unit) * 6);   /* 48px */
+  --space-16: calc(var(--space-unit) * 8);   /* 64px */
+  --space-20: calc(var(--space-unit) * 10);  /* 80px */
+  --space-24: calc(var(--space-unit) * 12);  /* 96px */
+  --space-32: calc(var(--space-unit) * 16);  /* 128px */
+  --space-40: calc(var(--space-unit) * 20);  /* 160px */
+  --space-48: calc(var(--space-unit) * 24);  /* 192px */
+  --space-64: calc(var(--space-unit) * 32);  /* 256px */
+  
+  /* Semantic Spacing - Context-Aware */
+  --space-xs: var(--space-1);    /* 4px - Tight spacing */
+  --space-sm: var(--space-2);    /* 8px - Small spacing */
+  --space-md: var(--space-4);    /* 16px - Medium spacing */
+  --space-lg: var(--space-6);    /* 24px - Large spacing */
+  --space-xl: var(--space-8);    /* 32px - Extra large spacing */
+  --space-2xl: var(--space-12);  /* 48px - Section spacing */
+  --space-3xl: var(--space-16);  /* 64px - Page spacing */
+  
+  /* Component-Specific Spacing - Optimized */
+  --space-button-padding-x: var(--space-3);
+  --space-button-padding-y: var(--space-2);
+  --space-card-padding: var(--space-4);
+  --space-section-gap: var(--space-6);
+  --space-page-margin: var(--space-4);
+  
+  /* Container Spacing - Optimized */
+  --container-padding-mobile: var(--space-3);
+  --container-padding-tablet: var(--space-4);
+  --container-padding-desktop: var(--space-6);
+  --container-max-width: 100vw; /* Constrain to viewport width to prevent overflow */
+
+  /* Container widths for each breakpoint - Full Width */
+  --container-mobile: 100vw;
+  --container-tablet: 100vw;
+  --container-desktop: 100vw;
+  --container-wide: 100vw;
+
+  /* Content spacing */
+  --content-padding-mobile: 1rem;
+  --content-padding-tablet: 1.5rem;
+  --content-padding-desktop: 2rem;
+
+  /* Grid gaps */
+  --grid-gap-mobile: 1rem;
+  --grid-gap-tablet: 1.5rem;
+  --grid-gap-desktop: 2rem;
+}
+
+/* Layout Utility Classes */
+
+/* Margin Classes */
+.m-0 { margin: var(--space-0); }
+.m-1 { margin: var(--space-1); }
+.m-2 { margin: var(--space-2); }
+.m-3 { margin: var(--space-3); }
+.m-4 { margin: var(--space-4); }
+.m-5 { margin: var(--space-5); }
+.m-6 { margin: var(--space-6); }
+.m-8 { margin: var(--space-8); }
+.m-10 { margin: var(--space-10); }
+.m-12 { margin: var(--space-12); }
+.m-16 { margin: var(--space-16); }
+.m-20 { margin: var(--space-20); }
+.m-24 { margin: var(--space-24); }
+
+/* Padding Classes */
+.p-0 { padding: var(--space-0); }
+.p-1 { padding: var(--space-1); }
+.p-2 { padding: var(--space-2); }
+.p-3 { padding: var(--space-3); }
+.p-4 { padding: var(--space-4); }
+.p-5 { padding: var(--space-5); }
+.p-6 { padding: var(--space-6); }
+.p-8 { padding: var(--space-8); }
+.p-10 { padding: var(--space-10); }
+.p-12 { padding: var(--space-12); }
+.p-16 { padding: var(--space-16); }
+
+/* Gap Classes for Flexbox/Grid */
+.gap-0 { gap: var(--space-0); }
+.gap-1 { gap: var(--space-1); }
+.gap-2 { gap: var(--space-2); }
+.gap-3 { gap: var(--space-3); }
+.gap-4 { gap: var(--space-4); }
+.gap-5 { gap: var(--space-5); }
+.gap-6 { gap: var(--space-6); }
+.gap-8 { gap: var(--space-8); }
+.gap-10 { gap: var(--space-10); }
+.gap-12 { gap: var(--space-12); }
+
+/* Semantic Spacing Classes */
+.space-xs { gap: var(--space-xs); }
+.space-sm { gap: var(--space-sm); }
+.space-md { gap: var(--space-md); }
+.space-lg { gap: var(--space-lg); }
+.space-xl { gap: var(--space-xl); }
+.space-2xl { gap: var(--space-2xl); }
+.space-3xl { gap: var(--space-3xl); }
+
+/* Component Layout Classes */
+.layout-container {
+  width: 100%;
+  max-width: 100vw;
+  margin: 0;
+  padding: 0 var(--container-padding-mobile);
+  box-sizing: border-box;
+}
+
+.layout-section {
+  margin-bottom: var(--space-section-gap);
+}
+
+.layout-card {
+  padding: var(--space-card-padding);
+}
+
+.layout-button {
+  padding: var(--space-button-padding-y) var(--space-button-padding-x);
+}
+
+/* Stack Layout - Consistent Vertical Spacing */
+.stack {
+  display: flex;
+  flex-direction: column;
+}
+
+.stack-xs > * + * { margin-top: var(--space-xs); }
+.stack-sm > * + * { margin-top: var(--space-sm); }
+.stack-md > * + * { margin-top: var(--space-md); }
+.stack-lg > * + * { margin-top: var(--space-lg); }
+.stack-xl > * + * { margin-top: var(--space-xl); }
+.stack-2xl > * + * { margin-top: var(--space-2xl); }
+
+/* Cluster Layout - Consistent Horizontal Spacing */
+.cluster {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.cluster-xs { gap: var(--space-xs); }
+.cluster-sm { gap: var(--space-sm); }
+.cluster-md { gap: var(--space-md); }
+.cluster-lg { gap: var(--space-lg); }
+.cluster-xl { gap: var(--space-xl); }
+
+/* Grid Layout - Consistent Grid Spacing */
+.grid-layout {
+  display: grid;
+}
+
+.grid-gap-xs { gap: var(--space-xs); }
+.grid-gap-sm { gap: var(--space-sm); }
+.grid-gap-md { gap: var(--space-md); }
+.grid-gap-lg { gap: var(--space-lg); }
+.grid-gap-xl { gap: var(--space-xl); }
+
+/* Responsive Container Padding */
+@media (min-width: 768px) {
+  .layout-container {
+    padding: 0 var(--container-padding-tablet);
+  }
+}
+
+@media (min-width: 1024px) {
+  .layout-container {
+    padding: 0 var(--container-padding-desktop);
+  }
+}
+
+/* Component-Specific Spacing */
+.card-spacing {
+  padding: var(--space-6);
+  margin-bottom: var(--space-4);
+}
+
+.card-spacing-compact {
+  padding: var(--space-4);
+  margin-bottom: var(--space-3);
+}
+
+.card-spacing-comfortable {
+  padding: var(--space-8);
+  margin-bottom: var(--space-6);
+}
+
+/* Viewport Constraint Utilities */
+.viewport-constrained {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+.layout-constrained {
+  width: 100%;
+  max-width: 100vw;
+  box-sizing: border-box;
+}
+
+.content-constrained {
+  max-width: calc(100vw - var(--nav-sidebar-width, 0px));
+  overflow-x: hidden;
+}
+
+.button-spacing {
+  padding: var(--space-3) var(--space-6);
+  margin: var(--space-1);
+}
+
+.button-spacing-sm {
+  padding: var(--space-2) var(--space-4);
+  margin: var(--space-1);
+}
+
+.button-spacing-lg {
+  padding: var(--space-4) var(--space-8);
+  margin: var(--space-2);
+}
+
+/* Form Spacing */
+.form-spacing {
+  margin-bottom: var(--space-4);
+}
+
+.form-group {
+  margin-bottom: var(--space-4);
+}
+
+.form-label {
+  margin-bottom: var(--space-2);
+}
+
+.form-input {
+  padding: var(--space-3) var(--space-4);
+}
+
+.form-help-text {
+  margin-top: var(--space-1);
+}
+
+/* Navigation Spacing */
+.nav-spacing {
+  padding: var(--space-4) var(--space-6);
+}
+
+.nav-item {
+  margin: 0 var(--space-2);
+}
+
+.nav-dropdown {
+  padding: var(--space-2) 0;
+}
+
+/* Content Spacing */
+.content-spacing h1,
+.content-spacing h2,
+.content-spacing h3,
+.content-spacing h4,
+.content-spacing h5,
+.content-spacing h6 {
+  margin-top: var(--space-8);
+  margin-bottom: var(--space-4);
+}
+
+.content-spacing h1:first-child,
+.content-spacing h2:first-child,
+.content-spacing h3:first-child,
+.content-spacing h4:first-child,
+.content-spacing h5:first-child,
+.content-spacing h6:first-child {
+  margin-top: 0;
+}
+
+.content-spacing p {
+  margin-bottom: var(--space-4);
+}
+
+.content-spacing ul,
+.content-spacing ol {
+  margin-bottom: var(--space-4);
+  padding-left: var(--space-6);
+}
+
+.content-spacing li {
+  margin-bottom: var(--space-2);
+}
+
+/* Mobile Adjustments */
+@media (max-width: 768px) {
+  .layout-section {
+    margin-bottom: var(--space-8);
+  }
+  
+  .card-spacing {
+    padding: var(--space-4);
+  }
+  
+  .content-spacing h1,
+  .content-spacing h2,
+  .content-spacing h3 {
+    margin-top: var(--space-6);
+    margin-bottom: var(--space-3);
+  }
+}

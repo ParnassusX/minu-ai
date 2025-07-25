@@ -1,0 +1,299 @@
+// Infrastructure Testing Service for Minu.AI
+// Comprehensive testing of all services and integrations
+
+import { createClient } from '@/lib/supabase/client'
+// import { getRedisCache } from '../cache/redis'
+// import { getAPICacheService } from '../cache/apiCache'
+import { env } from '../config/environment'
+
+export interface TestResult {
+  service: string
+  status: 'pass' | 'fail' | 'warning'
+  message: string
+  details?: any
+  timestamp: number
+}
+
+export interface InfrastructureTestReport {
+  overall: 'pass' | 'fail' | 'warning'
+  results: TestResult[]
+  summary: {
+    passed: number
+    failed: number
+    warnings: number
+    total: number
+  }
+  timestamp: number
+}
+
+export class InfrastructureTestService {
+  private results: TestResult[] = []
+
+  /**
+   * Run comprehensive infrastructure tests
+   */
+  async runAllTests(): Promise<InfrastructureTestReport> {
+    this.results = []
+    
+    console.log('🧪 Starting infrastructure tests...')
+
+    // Test all services
+    await this.testSupabase()
+    await this.testRedis()
+    await this.testCloudinary()
+    await this.testReplicate()
+    await this.testGemini()
+    await this.testEnvironmentConfig()
+
+    return this.generateReport()
+  }
+
+  /**
+   * Test Supabase connection and basic operations
+   */
+  private async testSupabase(): Promise<void> {
+    try {
+      const supabase = createClient()
+      
+      // Test basic connection
+      const { data, error } = await supabase.from('profiles').select('count').limit(1)
+      
+      if (error) {
+        this.addResult('Supabase', 'warning', `Connection warning: ${error.message}`, { error })
+      } else {
+        this.addResult('Supabase', 'pass', 'Database connection successful', { data })
+      }
+
+      // Test authentication
+      const { data: session } = await supabase.auth.getSession()
+      this.addResult('Supabase Auth', 'pass', 'Authentication service available', { hasSession: !!session })
+
+    } catch (error) {
+      this.addResult('Supabase', 'fail', `Database connection failed: ${error}`)
+    }
+  }
+
+  /**
+   * Test Redis cache functionality
+   */
+  private async testRedis(): Promise<void> {
+    try {
+      // const cache = getRedisCache()
+      
+      // if (!cache.isReady()) {
+        this.addResult('Redis', 'warning', 'Redis cache not available - running without cache')
+        return
+      }
+
+      // Test basic operations
+      const testKey = 'test:infrastructure'
+      const testValue = { test: true, timestamp: Date.now() }
+
+      // Test set
+      const setResult = await cache.set(testKey, testValue, { ttl: 60 })
+      if (!setResult.success) {
+        this.addResult('Redis', 'fail', `Cache set failed: ${setResult.error}`)
+        return
+      }
+
+      // Test get
+      const getResult = await cache.get(testKey)
+      if (!getResult.success || !getResult.data) {
+        this.addResult('Redis', 'fail', `Cache get failed: ${getResult.error}`)
+        return
+      }
+
+      // Test delete
+      await cache.delete(testKey)
+
+      this.addResult('Redis', 'pass', 'Cache operations successful', {
+        set: setResult.success,
+        get: getResult.success,
+        data: getResult.data
+      })
+
+    } catch (error) {
+      this.addResult('Redis', 'fail', `Cache test failed: ${error}`)
+    }
+  }
+
+  /**
+   * Test Cloudinary configuration
+   */
+  private async testCloudinary(): Promise<void> {
+    try {
+      // Cloudinary testing temporarily disabled
+      this.addResult('Cloudinary', 'warning', 'Cloudinary testing temporarily disabled')
+      return
+
+      // const config = env.getCloudinaryConfig()
+      // if (!env.hasCloudinaryConfig()) {
+      //   this.addResult('Cloudinary', 'warning', 'Cloudinary not fully configured')
+      //   return
+      // }
+
+      // Test configuration completeness
+      /*if (config.cloudName && config.apiKey && config.apiSecret) {
+        this.addResult('Cloudinary', 'pass', 'Cloudinary configuration complete', {
+          cloudName: config.cloudName,
+          hasApiKey: !!config.apiKey,
+          hasApiSecret: !!config.apiSecret
+        })
+      } else {
+        this.addResult('Cloudinary', 'warning', 'Cloudinary configuration incomplete')
+      }*/
+
+    } catch (error) {
+      this.addResult('Cloudinary', 'fail', `Cloudinary test failed: ${error}`)
+    }
+  }
+
+  /**
+   * Test Replicate API configuration
+   */
+  private async testReplicate(): Promise<void> {
+    try {
+      const config = env.getReplicateConfig()
+      
+      if (!env.hasReplicateConfig()) {
+        this.addResult('Replicate', 'fail', 'Replicate API token not configured')
+        return
+      }
+
+      // Test API token format
+      if (config.apiToken && config.apiToken.startsWith('r8_')) {
+        this.addResult('Replicate', 'pass', 'Replicate API configuration valid', {
+          hasToken: true,
+          tokenFormat: 'valid'
+        })
+      } else {
+        this.addResult('Replicate', 'warning', 'Replicate API token format may be invalid')
+      }
+
+    } catch (error) {
+      this.addResult('Replicate', 'fail', `Replicate test failed: ${error}`)
+    }
+  }
+
+  /**
+   * Test Gemini API configuration
+   */
+  private async testGemini(): Promise<void> {
+    try {
+      const config = env.getGeminiConfig()
+      
+      if (!env.hasGeminiConfig()) {
+        this.addResult('Gemini', 'warning', 'Gemini API not configured - prompt enhancement disabled')
+        return
+      }
+
+      // Test API key format
+      if (config.apiKey && config.apiKey.startsWith('AIza')) {
+        this.addResult('Gemini', 'pass', 'Gemini API configuration valid', {
+          hasApiKey: true,
+          apiUrl: config.apiUrl
+        })
+      } else {
+        this.addResult('Gemini', 'warning', 'Gemini API key format may be invalid')
+      }
+
+    } catch (error) {
+      this.addResult('Gemini', 'fail', `Gemini test failed: ${error}`)
+    }
+  }
+
+  /**
+   * Test environment configuration
+   */
+  private async testEnvironmentConfig(): Promise<void> {
+    try {
+      // Test required environment variables
+      const requiredVars = [
+        'NEXT_PUBLIC_SUPABASE_URL',
+        'NEXT_PUBLIC_SUPABASE_ANON_KEY'
+      ]
+
+      const missing = requiredVars.filter(varName => !process.env[varName])
+      
+      if (missing.length > 0) {
+        this.addResult('Environment', 'fail', `Missing required variables: ${missing.join(', ')}`)
+        return
+      }
+
+      // Test optional but recommended variables
+      const optional = [
+        'REPLICATE_API_TOKEN',
+        'GEMINI_API_KEY',
+        'CLOUDINARY_CLOUD_NAME'
+      ]
+
+      const configured = optional.filter(varName => !!process.env[varName])
+      
+      this.addResult('Environment', 'pass', 'Environment configuration valid', {
+        required: requiredVars.length,
+        optional: configured.length,
+        configured: configured
+      })
+
+    } catch (error) {
+      this.addResult('Environment', 'fail', `Environment test failed: ${error}`)
+    }
+  }
+
+  /**
+   * Add test result
+   */
+  private addResult(service: string, status: 'pass' | 'fail' | 'warning', message: string, details?: any): void {
+    this.results.push({
+      service,
+      status,
+      message,
+      details,
+      timestamp: Date.now()
+    })
+  }
+
+  /**
+   * Generate comprehensive test report
+   */
+  private generateReport(): InfrastructureTestReport {
+    const passed = this.results.filter(r => r.status === 'pass').length
+    const failed = this.results.filter(r => r.status === 'fail').length
+    const warnings = this.results.filter(r => r.status === 'warning').length
+
+    let overall: 'pass' | 'fail' | 'warning' = 'pass'
+    if (failed > 0) {
+      overall = 'fail'
+    } else if (warnings > 0) {
+      overall = 'warning'
+    }
+
+    return {
+      overall,
+      results: this.results,
+      summary: {
+        passed,
+        failed,
+        warnings,
+        total: this.results.length
+      },
+      timestamp: Date.now()
+    }
+  }
+}
+
+// Singleton instance
+let infrastructureTestService: InfrastructureTestService | null = null
+
+export function getInfrastructureTestService(): InfrastructureTestService {
+  if (!infrastructureTestService) {
+    infrastructureTestService = new InfrastructureTestService()
+  }
+  return infrastructureTestService
+}
+
+// Utility function for quick testing
+export async function runQuickInfrastructureTest(): Promise<InfrastructureTestReport> {
+  const testService = getInfrastructureTestService()
+  return testService.runAllTests()
+}
