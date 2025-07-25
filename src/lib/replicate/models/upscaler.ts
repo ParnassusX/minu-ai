@@ -299,7 +299,7 @@ export const UPSCALER_MODEL_INSTANCES = {
 }
 
 // Utility function to create any upscaler model
-export function createUpscalerModel(modelId: keyof typeof UPSCALER_MODELS): UpscalerModel {
+export function createUpscalerModel(modelId: string): UpscalerModel {
   return new UpscalerModel(modelId)
 }
 
@@ -313,7 +313,7 @@ export class UpscalerService {
     modelId: string,
     options: Partial<UpscalerParams> = {}
   ): Promise<string> {
-    const model = createUpscalerModel(modelId as keyof typeof UPSCALER_MODELS)
+    const model = createUpscalerModel(modelId)
     
     const params: UpscalerParams = {
       image: imageFile,
@@ -336,7 +336,7 @@ export class UpscalerService {
    * Estimate upscaling cost
    */
   static estimateUpscalingCost(modelId: string, imageSize?: { width: number; height: number }): number {
-    const model = createUpscalerModel(modelId as keyof typeof UPSCALER_MODELS)
+    const model = createUpscalerModel(modelId)
     return model.estimateCost(imageSize)
   }
 }

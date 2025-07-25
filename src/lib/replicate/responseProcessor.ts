@@ -235,8 +235,12 @@ export class ReplicateResponseProcessor {
       storageResult: {
         ...storageResult,
         data: storageResult.data ? {
-          ...storageResult.data,
-          path: storageResult.data.publicId || storageResult.data.publicUrl
+          path: storageResult.data.publicId || storageResult.data.publicUrl,
+          publicUrl: storageResult.data.publicUrl,
+          metadata: {
+            ...storageResult.data.metadata,
+            fileSize: 0 // Will be calculated during actual storage
+          }
         } : undefined
       }
     }
