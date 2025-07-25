@@ -48,8 +48,9 @@ export class ModelFactory {
    */
   static getModelConfig(modelId: string): ModelConfig | null {
     for (const category of Object.values(MODEL_REGISTRY)) {
-      if (category[modelId]) {
-        return category[modelId]
+      const model = (category as any)[modelId]
+      if (model) {
+        return model
       }
     }
     return null
@@ -132,20 +133,24 @@ export class ModelUtils {
    */
   static getModelsByPricingTier(): Record<string, ModelOption[]> {
     const allOptions = this.getModelOptions()
-    const byTier: Record<string, ModelOption[]> = {}
+    const byTier: Record<string, ModelOption[]> = {
+      free: [],
+      basic: [],
+      premium: [],
+      ultra: []
+    }
 
-    Object.entries(PRICING_TIERS).forEach(([tierName, tier]) => {
-      byTier[tierName] = allOptions.filter(option => {
-        const cost = option.pricing.costPerImage || 0
-        return cost <= tier.max && (
-          tierName === 'ultra' || 
-          cost > (Object.values(PRICING_TIERS).find(t => 
-            Object.keys(PRICING_TIERS).indexOf(Object.keys(PRICING_TIERS).find(k => 
-              PRICING_TIERS[k as keyof typeof PRICING_TIERS] === t
-            )!) < Object.keys(PRICING_TIERS).indexOf(tierName)
-          )?.max || 0)
-        )
-      })
+    allOptions.forEach(option => {
+      const cost = option.pricing.costPerImage || 0
+      if (cost === 0) {
+        byTier.free.push(option)
+      } else if (cost <= 0.02) {
+        byTier.basic.push(option)
+      } else if (cost <= 0.05) {
+        byTier.premium.push(option)
+      } else {
+        byTier.ultra.push(option)
+      }
     })
 
     return byTier
@@ -155,9 +160,14 @@ export class ModelUtils {
    * Get recommended model for specific use case
    */
   static getRecommendedModel(useCase: keyof typeof RECOMMENDED_MODELS): ModelOption | null {
-    const modelId = RECOMMENDED_MODELS[useCase]
+    const modelIds = RECOMMENDED_MODELS[useCase]
     const allOptions = this.getModelOptions()
-    return allOptions.find(option => option.id === modelId) || null
+    // Return the first available model from the recommended list
+    for (const modelId of modelIds) {
+      const option = allOptions.find(option => option.id === modelId)
+      if (option) return option
+    }
+    return null
   }
 
   /**

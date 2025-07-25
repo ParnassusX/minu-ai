@@ -223,10 +223,14 @@ export class ReplicateService {
         success: true,
         data: [{
           id: result.id,
-          status: result.status,
-          output: result.output,
-          urls: result.urls,
+          url: Array.isArray(result.output) ? result.output[0] : result.output || '',
+          prompt: input.prompt || '',
+          model: model,
+          timestamp: new Date(),
           metadata: {
+            width: 1024, // Default width
+            height: 1024, // Default height
+            generationTime: 0, // Will be calculated
             model,
             input,
             created_at: result.created_at

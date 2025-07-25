@@ -160,21 +160,22 @@ class ReplicateModelService {
   /**
    * Infer model category from description and name
    */
-  private inferCategory(modelData: ReplicateModel): string {
+  private inferCategory(modelData: ReplicateModel): 'image-generation' | 'image-editing' | 'video-generation' | 'upscaling' {
     const name = modelData.name.toLowerCase()
     const description = modelData.description.toLowerCase()
-    
+
     if (name.includes('video') || description.includes('video')) return 'video-generation'
-    if (name.includes('upscal') || description.includes('upscal')) return 'image-enhancement'
+    if (name.includes('upscal') || description.includes('upscal')) return 'upscaling'
+    if (name.includes('edit') || description.includes('edit')) return 'image-editing'
     return 'image-generation'
   }
 
   /**
    * Infer supported modes from input schema
    */
-  private inferSupportedModes(inputSchema: any): string[] {
+  private inferSupportedModes(inputSchema: any): ('images' | 'video' | 'enhance')[] {
     const properties = inputSchema.properties || {}
-    
+
     if (properties.video || properties.duration) return ['video']
     if (properties.scale || properties.upscale) return ['enhance']
     return ['images']

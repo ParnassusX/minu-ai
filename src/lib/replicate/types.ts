@@ -1,7 +1,8 @@
 // Core Replicate Types for Minu.AI
 // Modular, extensible type system for all image generation models
 
-import { GeneratorMode } from '@/lib/types/modes'
+// import { GeneratorMode } from '@/lib/types/modes'
+type GeneratorMode = 'images' | 'video' | 'enhance'
 
 // Standardized parameter schema for consistent UI generation
 export interface ParameterSchema {

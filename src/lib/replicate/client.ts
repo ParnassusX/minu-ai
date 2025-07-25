@@ -170,10 +170,11 @@ export class ReplicateClient {
    */
   getAvailableModels(): string[] {
     const models: string[] = []
-    
+
     Object.values(MODEL_REGISTRY).forEach(category => {
       Object.keys(category).forEach(modelId => {
-        if (category[modelId].available) {
+        const model = (category as any)[modelId]
+        if (model && model.available) {
           models.push(modelId)
         }
       })
@@ -193,8 +194,9 @@ export class ReplicateClient {
 
   private findModelConfig(modelId: string) {
     for (const category of Object.values(MODEL_REGISTRY)) {
-      if (category[modelId]) {
-        return category[modelId]
+      const model = (category as any)[modelId]
+      if (model) {
+        return model
       }
     }
     return null

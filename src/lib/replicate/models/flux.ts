@@ -11,8 +11,8 @@ export class FluxModel {
 
   constructor(modelId: keyof typeof FLUX_MODELS) {
     this.modelId = modelId
-    this.config = FLUX_MODELS[modelId]
-    
+    this.config = FLUX_MODELS[modelId] as FluxModelConfig
+
     if (!this.config) {
       throw new Error(`FLUX model ${modelId} not found`)
     }
