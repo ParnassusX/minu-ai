@@ -2,7 +2,7 @@
 // Modular upscaler implementation using Replicate API
 
 import { BaseModelConfig, BaseGenerationResult, ReplicateAPIError, UpscalerConfig } from '../types'
-import { UPSCALER_MODELS } from '../config'
+import { MODEL_REGISTRY } from '../config'
 
 export interface UpscalerParams {
   image: string | File // Image URL or File object
@@ -22,19 +22,21 @@ export class UpscalerModel {
   private config: UpscalerConfig
   private replicateModel: string
 
-  constructor(modelId: keyof typeof UPSCALER_MODELS) {
-    this.config = UPSCALER_MODELS[modelId]
-    if (!this.config) {
+  constructor(modelId: string) {
+    const upscalerModels = MODEL_REGISTRY.upscaling
+    const config = upscalerModels[modelId as keyof typeof upscalerModels]
+    if (!config) {
       throw new Error(`Upscaler model ${modelId} not found`)
     }
-    
+    this.config = config as any
+
     // Map model IDs to actual Replicate model names
     const modelMapping: Record<string, string> = {
       'real-esrgan': 'xinntao/realesrgan',
       'esrgan': 'xinntao/esrgan',
       'swinir': 'jingyunliang/swinir'
     }
-    
+
     this.replicateModel = modelMapping[modelId] || modelId
   }
 
@@ -327,7 +329,7 @@ export class UpscalerService {
    * Get available upscaler models
    */
   static getAvailableModels() {
-    return Object.values(UPSCALER_MODELS).filter(model => model.available)
+    return Object.values(MODEL_REGISTRY.upscaling).filter((model: any) => model.available)
   }
 
   /**

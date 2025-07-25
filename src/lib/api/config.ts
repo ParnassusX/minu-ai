@@ -175,9 +175,9 @@ export function validateAPIKey(key: string, service: 'replicate' | 'gemini'): bo
 export function isAPIKeyConfigured(service: 'replicate' | 'gemini'): boolean {
   switch (service) {
     case 'replicate':
-      return validateAPIKey(API_KEYS.REPLICATE, 'replicate')
+      return API_KEYS.REPLICATE ? validateAPIKey(API_KEYS.REPLICATE, 'replicate') : false
     case 'gemini':
-      return validateAPIKey(API_KEYS.GEMINI, 'gemini')
+      return API_KEYS.GEMINI ? validateAPIKey(API_KEYS.GEMINI, 'gemini') : false
     default:
       return false
   }

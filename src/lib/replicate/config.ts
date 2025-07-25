@@ -56,6 +56,20 @@ export const MODEL_REGISTRY = {
         quality: 'very-high'
       }
     },
+    'flux-ultra': {
+      available: true,
+      replicateModel: 'black-forest-labs/flux-1.1-ultra',
+      category: 'image-generation',
+      pricing: { costPerImage: 0.075 },
+      capabilities: {
+        maxResolution: '2048x2048',
+        features: ['text-to-image', 'ultra-quality']
+      },
+      performance: {
+        averageTime: 25,
+        quality: 'ultra'
+      }
+    },
     'flux-kontext-pro': {
       available: true,
       replicateModel: 'fofr/flux-kontext-pro',
