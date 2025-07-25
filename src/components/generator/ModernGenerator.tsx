@@ -469,6 +469,7 @@ export const ModernGenerator: React.FC<ModernGeneratorProps> = ({ className }) =
             width: storedResult.metadata?.width || 1024,
             height: storedResult.metadata?.height || 1024,
             createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
             isFavorite: false,
             tags: []
           })
