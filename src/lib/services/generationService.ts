@@ -33,6 +33,7 @@ interface StoredResult {
   originalUrl: string
   cloudinaryUrl: string
   publicId: string
+  databaseId?: string
   format?: string
   metadata: {
     model: string
