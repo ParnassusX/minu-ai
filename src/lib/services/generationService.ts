@@ -33,12 +33,16 @@ interface StoredResult {
   originalUrl: string
   cloudinaryUrl: string
   publicId: string
+  format?: string
   metadata: {
     model: string
     prompt: string
     parameters: Record<string, any>
     mode: string
     createdAt: string
+    width?: number
+    height?: number
+    duration?: number
   }
 }
 
