@@ -1,6 +1,7 @@
 /* Import Modern Design System - Streamlined for production */
 @import './design-tokens.css';
 @import './design-system.css';
+@import './unified-design-system.css';
 @import './typography.css';
 @import './spacing.css';
 @import './accessibility.css';
