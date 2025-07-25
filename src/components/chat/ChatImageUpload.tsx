@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils'
 import { Upload, X, Image as ImageIcon, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { EnhancedLoading } from '@/components/ui/enhanced-loading'
+import { OptimizedLoading } from '@/components/ui/OptimizedLoading'
 
 interface ChatImageUploadProps {
   onImageUpload: (imageUrl: string, file: File) => void
@@ -154,7 +154,7 @@ export function ChatImageUpload({
               className="w-full h-full object-cover opacity-50"
             />
             <div className="absolute inset-0 flex items-center justify-center">
-              <EnhancedLoading
+              <OptimizedLoading
                 variant="upload"
                 title="Processing image"
                 subtitle="Preparing for editing"
