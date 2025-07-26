@@ -56,14 +56,21 @@ export function CompactModelSelector({
              selectedModel?.category === 'upscaling' ? '✨' : '🎨'}
           </div>
 
-          {/* Clean Model Info */}
+          {/* Clean Model Info with Status Indicator */}
           <div className="flex-1 min-w-0">
-            <div className="text-sm font-semibold text-gray-900 dark:text-white truncate">
-              {selectedModel?.name || 'Choose Model'}
+            <div className="flex items-center gap-2">
+              <div className="text-sm font-semibold text-gray-900 dark:text-white truncate">
+                {selectedModel?.name || 'Choose Model'}
+              </div>
+              {/* Active Model Indicator */}
+              {selectedModel && (
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse flex-shrink-0"
+                     title="Model ready for generation" />
+              )}
             </div>
             {selectedModel?.provider && (
               <div className="text-xs text-gray-600 dark:text-gray-400 truncate">
-                {selectedModel.provider}
+                {selectedModel.provider} • {selectedModel.category?.replace('-', ' ')}
               </div>
             )}
           </div>
@@ -85,7 +92,11 @@ export function CompactModelSelector({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.96 }}
             transition={{ duration: 0.12, ease: "easeOut" }}
-            className="absolute top-full left-0 right-0 mt-1 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-white/20 rounded-lg shadow-2xl z-50 max-h-72 overflow-y-auto overflow-x-hidden"
+            className="absolute top-full left-0 right-0 mt-1 bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border border-white/30 dark:border-gray-700/60 rounded-lg shadow-2xl z-50 max-h-72 overflow-y-auto overflow-x-hidden"
+            style={{
+              backdropFilter: 'blur(20px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(20px) saturate(180%)'
+            }}
           >
             <div className="p-1.5">
               {availableModels.map((model) => (
@@ -106,7 +117,7 @@ export function CompactModelSelector({
                      model.category === 'upscaling' ? '✨' : '🎨'}
                   </div>
 
-                  {/* Clean Model Info */}
+                  {/* Clean Model Info with Enhanced Status */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-semibold text-gray-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
@@ -115,9 +126,12 @@ export function CompactModelSelector({
                       {model.id === selectedModel?.id && (
                         <Check className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" />
                       )}
+                      {/* Model Status Indicator */}
+                      <div className="w-1.5 h-1.5 bg-green-400 rounded-full flex-shrink-0"
+                           title="Model configured and ready" />
                     </div>
                     <div className="text-xs text-gray-600 dark:text-gray-400 truncate">
-                      {model.provider} • {model.pricing?.costPerImage ? `$${model.pricing.costPerImage}/image` : 'Pricing varies'}
+                      {model.provider} • {model.category?.replace('-', ' ')} • {model.pricing?.costPerImage ? `$${model.pricing.costPerImage}/image` : 'Pricing varies'}
                     </div>
                   </div>
                 </button>

@@ -224,17 +224,32 @@ class GenerationService {
 
       // Map from full Replicate model name to legacy model ID
       const modelIdMapping: Record<string, string> = {
+        // FLUX Models
         'black-forest-labs/flux-schnell': 'flux-schnell',
         'black-forest-labs/flux-dev': 'flux-dev',
         'black-forest-labs/flux-1.1-pro': 'flux-pro',
         'fofr/flux-kontext-pro': 'flux-kontext-pro',
         'fofr/flux-kontext-max': 'flux-kontext-max',
-        'seedream/seedream-3': 'seedream-3',
+
+        // ByteDance Models - CRITICAL FIX: These were missing!
+        'bytedance/seedance-1-lite': 'seedance-1-lite',
+        'bytedance/seedance-1-pro': 'seedance-1-pro',
+        'bytedance/seedream-3': 'seedream-3',
+
+        // Stability AI Models
         'stability-ai/stable-diffusion-3-5-large': 'sd-3.5-large',
         'stability-ai/stable-diffusion-3-5-large-turbo': 'sd-3.5-large-turbo'
       }
 
       const legacyModelId = modelIdMapping[request.model.replicateModel] || 'flux-dev'
+
+      // DEBUG: Log model mapping for troubleshooting
+      console.log('🔍 Model Mapping Debug:', {
+        originalModel: request.model.replicateModel,
+        mappedModelId: legacyModelId,
+        isCorrectMapping: legacyModelId !== 'flux-dev',
+        inputParameters: Object.keys(input)
+      })
 
       // Use legacy format to get complete workflow with storage
       const requestBody = {

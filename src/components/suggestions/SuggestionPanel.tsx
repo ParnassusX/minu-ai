@@ -39,13 +39,17 @@ interface SuggestionPanelProps {
   onSuggestionUse?: (suggestion: Suggestion) => void
   className?: string
   compact?: boolean
+  currentMode?: string // ADDED: For contextual filtering
+  selectedModel?: { id: string; name: string; category?: string } | null // ADDED: For model-specific suggestions
 }
 
 export function SuggestionPanel({
   onSuggestionDrop,
   onSuggestionUse,
   className,
-  compact = false
+  compact = false,
+  currentMode,
+  selectedModel
 }: SuggestionPanelProps) {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([])
   const [filteredSuggestions, setFilteredSuggestions] = useState<Suggestion[]>([])
@@ -64,14 +68,58 @@ export function SuggestionPanel({
     fetchSuggestions()
   }, [])
 
-  // Filter suggestions based on search and category
+  // ENHANCED: Filter suggestions based on search, category, and contextual relevance
   useEffect(() => {
     let filtered = suggestions
 
+    // Category filtering
     if (selectedCategory !== 'all') {
       filtered = filtered.filter(s => s.category.toLowerCase() === selectedCategory.toLowerCase())
     }
 
+    // ADDED: Contextual filtering based on current mode and model
+    if (currentMode && compact) { // Only apply contextual filtering in compact mode (generator)
+      // Prioritize suggestions relevant to current mode
+      const modeKeywords = {
+        'images': ['photo', 'image', 'picture', 'art', 'painting', 'drawing', 'portrait', 'landscape'],
+        'video': ['video', 'motion', 'animation', 'cinematic', 'movement', 'sequence', 'clip'],
+        'enhance': ['upscale', 'enhance', 'improve', 'quality', 'resolution', 'detail', 'sharp']
+      }
+
+      const currentModeKeywords = modeKeywords[currentMode as keyof typeof modeKeywords] || []
+
+      // Score suggestions based on relevance
+      filtered = filtered.map(s => ({
+        ...s,
+        relevanceScore: currentModeKeywords.reduce((score, keyword) => {
+          const textMatch = s.text.toLowerCase().includes(keyword) ? 2 : 0
+          const titleMatch = s.title.toLowerCase().includes(keyword) ? 3 : 0
+          const tagMatch = s.tags.some(tag => tag.toLowerCase().includes(keyword)) ? 1 : 0
+          return score + textMatch + titleMatch + tagMatch
+        }, 0)
+      }))
+
+      // If we have a selected model, boost suggestions that mention the model or its category
+      if (selectedModel) {
+        const modelKeywords = [
+          selectedModel.name.toLowerCase(),
+          selectedModel.category?.toLowerCase() || '',
+          selectedModel.id.toLowerCase()
+        ].filter(Boolean)
+
+        filtered = filtered.map(s => ({
+          ...s,
+          relevanceScore: s.relevanceScore + modelKeywords.reduce((score, keyword) => {
+            const match = s.text.toLowerCase().includes(keyword) ||
+                         s.title.toLowerCase().includes(keyword) ||
+                         s.tags.some(tag => tag.toLowerCase().includes(keyword))
+            return score + (match ? 5 : 0) // Higher boost for model-specific matches
+          }, 0)
+        }))
+      }
+    }
+
+    // Search filtering
     if (debouncedSearch) {
       filtered = filtered.filter(s =>
         s.title.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
@@ -80,16 +128,28 @@ export function SuggestionPanel({
       )
     }
 
-    // Sort by position, then by usage count
+    // ENHANCED: Sort by relevance score (if available), then position, then usage count
     filtered.sort((a, b) => {
+      // First sort by relevance score if in contextual mode
+      if ('relevanceScore' in a && 'relevanceScore' in b) {
+        const scoreA = (a as any).relevanceScore || 0
+        const scoreB = (b as any).relevanceScore || 0
+        if (scoreA !== scoreB) {
+          return scoreB - scoreA // Higher scores first
+        }
+      }
+
+      // Then by position
       if (a.position !== b.position) {
         return a.position - b.position
       }
+
+      // Finally by usage count
       return b.usageCount - a.usageCount
     })
 
     setFilteredSuggestions(filtered)
-  }, [suggestions, selectedCategory, debouncedSearch])
+  }, [suggestions, selectedCategory, debouncedSearch, currentMode, selectedModel, compact])
 
   // Get categories with counts
   const categoriesWithCounts = useMemo(() => {

@@ -108,6 +108,7 @@ export function DraggableSuggestion({
       onMouseLeave={() => setIsHovered(false)}
       onMouseDown={() => setIsPressed(true)}
       onMouseUp={() => setIsPressed(false)}
+      onClick={handleUse} // FIXED: Make entire card clickable
       {...attributes}
       {...listeners}
     >
@@ -123,11 +124,11 @@ export function DraggableSuggestion({
           isDragging && "shadow-2xl rotate-3"
         )}
         style={{
-          backgroundColor: suggestion.color + '20', // 20% opacity
+          backgroundColor: suggestion.color + '60', // FIXED: Increased to 60% opacity for better readability
           borderTopColor: suggestion.color,
-          borderLeftColor: suggestion.color + '40',
-          borderRightColor: suggestion.color + '40',
-          borderBottomColor: suggestion.color + '40',
+          borderLeftColor: suggestion.color + '70',
+          borderRightColor: suggestion.color + '70',
+          borderBottomColor: suggestion.color + '70',
           transform: `rotate(${rotation}deg)`,
         }}
       >
@@ -159,26 +160,28 @@ export function DraggableSuggestion({
               )}
             </div>
             
-            {showActions && (
-              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleUse}
-                  className="h-6 w-6 p-0 hover:bg-white/50"
-                >
-                  <Plus className="h-3 w-3" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleCopy}
-                  className="h-6 w-6 p-0 hover:bg-white/50"
-                >
-                  <Copy className="h-3 w-3" />
-                </Button>
+            {/* ENHANCED: Always show use indicator, show actions on hover */}
+            <div className="flex items-center gap-1">
+              {/* Always visible "Click to Use" indicator */}
+              <div className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400">
+                <Plus className="h-3 w-3" />
+                <span className="hidden sm:inline">Click to use</span>
               </div>
-            )}
+
+              {showActions && (
+                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity ml-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleCopy}
+                    className="h-6 w-6 p-0 hover:bg-white/50"
+                    title="Copy to clipboard"
+                  >
+                    <Copy className="h-3 w-3" />
+                  </Button>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Main Text */}

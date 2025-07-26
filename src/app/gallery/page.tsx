@@ -468,22 +468,37 @@ export default function GalleryPage() {
           ))}
         </div>
 
-        {/* Optimized Layout - Responsive Grid */}
-        <div className="grid grid-cols-1 xl:grid-cols-5 gap-4">
-          {/* Folder Manager - Compact */}
-          <div className="xl:col-span-1">
-            <FolderManager
-              folders={folders}
-              selectedFolderId={filter.folderId}
-              onFolderSelect={(folderId) => setFilter(prev => ({ ...prev, folderId }))}
-              onFolderCreate={handleFolderCreate}
-              onFolderUpdate={handleFolderUpdate}
-              onFolderDelete={handleFolderDelete}
-            />
-          </div>
+        {/* Mobile-First Responsive Layout */}
+        <div className="flex flex-col lg:grid lg:grid-cols-5 gap-4">
+          {/* Mobile: Collapsible Sidebar Controls */}
+          <div className="lg:col-span-2 space-y-4">
+            {/* Mobile: Horizontal Scroll for Folders */}
+            <div className="lg:hidden">
+              <div className="flex space-x-2 overflow-x-auto pb-2 scrollbar-hide">
+                <FolderManager
+                  folders={folders}
+                  selectedFolderId={filter.folderId}
+                  onFolderSelect={(folderId) => setFilter(prev => ({ ...prev, folderId }))}
+                  onFolderCreate={handleFolderCreate}
+                  onFolderUpdate={handleFolderUpdate}
+                  onFolderDelete={handleFolderDelete}
+                />
+              </div>
+            </div>
 
-          {/* Filter Panel - Compact */}
-          <div className="xl:col-span-1">
+            {/* Desktop: Full Folder Manager */}
+            <div className="hidden lg:block">
+              <FolderManager
+                folders={folders}
+                selectedFolderId={filter.folderId}
+                onFolderSelect={(folderId) => setFilter(prev => ({ ...prev, folderId }))}
+                onFolderCreate={handleFolderCreate}
+                onFolderUpdate={handleFolderUpdate}
+                onFolderDelete={handleFolderDelete}
+              />
+            </div>
+
+            {/* Filter Panel - Responsive */}
             <FilterPanel
               filter={filter}
               sort={sort}

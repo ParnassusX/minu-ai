@@ -142,10 +142,11 @@ export function ProgressiveParameterControls({
   }) => {
     if (params.length === 0) return null
 
+    // ENHANCED: Modern AI platform color scheme with better visual hierarchy
     const colorClasses = {
-      basic: 'text-blue-500 border-blue-500/20 bg-blue-500/10',
-      intermediate: 'text-orange-500 border-orange-500/20 bg-orange-500/10',
-      advanced: 'text-red-500 border-red-500/20 bg-red-500/10'
+      basic: 'text-blue-500 border-blue-500/30 bg-blue-500/15 hover:bg-blue-500/20',
+      intermediate: 'text-amber-500 border-amber-500/30 bg-amber-500/15 hover:bg-amber-500/20',
+      advanced: 'text-purple-500 border-purple-500/30 bg-purple-500/15 hover:bg-purple-500/20'
     }
 
     return (

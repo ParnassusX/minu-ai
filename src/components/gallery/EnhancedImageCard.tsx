@@ -142,13 +142,19 @@ export function EnhancedImageCard({
         </PremiumButton>
       </div>
 
-      {/* Image Container - Fixed clipping */}
+      {/* Image Container - Optimized for Performance */}
       <div className={cn("relative overflow-hidden rounded-t-lg", cardSize)}>
         <img
           src={image.url}
           alt={image.prompt}
           className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-[1.03]"
           loading="lazy"
+          decoding="async"
+          onLoad={(e) => {
+            // Fade in effect after load
+            e.currentTarget.style.opacity = '1'
+          }}
+          style={{ opacity: 0, transition: 'opacity 0.3s ease' }}
         />
         
         {/* Overlay with quick actions */}

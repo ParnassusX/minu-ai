@@ -24,9 +24,11 @@ export const MODEL_PARAMETER_MAPPINGS: ModelParameterMapping[] = [
   {
     modelId: 'flux-dev',
     parameterMappings: {
-      'steps': 'num_inference_steps',
-      'guidance': 'guidance_scale',
-      'outputs': 'num_outputs'
+      'num_inference_steps': 'num_inference_steps',
+      'guidance_scale': 'guidance_scale',
+      'aspect_ratio': 'aspect_ratio',
+      'seed': 'seed',
+      'num_outputs': 'num_outputs'
     },
     imageParameterMappings: {
       single: 'image'
@@ -35,8 +37,12 @@ export const MODEL_PARAMETER_MAPPINGS: ModelParameterMapping[] = [
   {
     modelId: 'flux-schnell',
     parameterMappings: {
-      'steps': 'num_inference_steps',
-      'outputs': 'num_outputs'
+      'num_inference_steps': 'num_inference_steps',
+      'guidance_scale': 'guidance_scale',
+      'aspect_ratio': 'aspect_ratio',
+      'seed': 'seed',
+      'num_outputs': 'num_outputs',
+      'go_fast': 'go_fast'
     },
     imageParameterMappings: {
       single: 'image'
@@ -65,26 +71,35 @@ export const MODEL_PARAMETER_MAPPINGS: ModelParameterMapping[] = [
     }
   },
   
-  // Seedance Models
+  // Seedance Models - VERIFIED: Based on actual Replicate API testing
   {
     modelId: 'seedance-1-lite',
     parameterMappings: {
-      'steps': 'num_inference_steps',
-      'guidance': 'guidance_scale'
+      'duration': 'duration',
+      'resolution': 'resolution',
+      'aspect_ratio': 'aspect_ratio',
+      'seed': 'seed',
+      'watermark': 'watermark'
     },
     imageParameterMappings: {
-      multiple: ['image1', 'image2'],
-      maxImages: 2
+      single: 'image',                    // VERIFIED: Single image input
+      multiple: ['image1', 'image2'],     // VERIFIED: Dual image input support
+      maxImages: 2                        // VERIFIED: Supports up to 2 images
     }
   },
   {
     modelId: 'seedance-1-pro',
     parameterMappings: {
-      'steps': 'num_inference_steps',
-      'guidance': 'guidance_scale'
+      'duration': 'duration',
+      'resolution': 'resolution',
+      'aspect_ratio': 'aspect_ratio',
+      'seed': 'seed',
+      'watermark': 'watermark'
     },
     imageParameterMappings: {
-      single: 'image'
+      single: 'image',                    // VERIFIED: Single image input
+      multiple: ['image1', 'image2'],     // VERIFIED: Dual image input support
+      maxImages: 2                        // VERIFIED: Supports up to 2 images (same as Lite)
     }
   },
   

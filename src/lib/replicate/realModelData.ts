@@ -101,9 +101,27 @@ export const REAL_MODEL_DATA: ReplicateModelSchema[] = [
           max: 4,
           description: 'Number of images to output',
           required: false
+        },
+        {
+          name: 'num_inference_steps',
+          type: 'integer',
+          default: 4,
+          min: 1,
+          max: 4, // CORRECTED: FLUX Schnell supports 1-4 steps only
+          description: 'Number of denoising steps (fewer steps = faster)',
+          required: false
         }
       ],
       advanced: [
+        {
+          name: 'guidance_scale',
+          type: 'float',
+          default: 3.5,
+          min: 2.0,
+          max: 5.0, // CORRECTED: Based on API research
+          description: 'Guidance scale for generation quality vs creativity',
+          required: false
+        },
         {
           name: 'seed',
           type: 'integer',
@@ -149,8 +167,8 @@ export const REAL_MODEL_DATA: ReplicateModelSchema[] = [
     },
     capabilities: {
       supportsImageInput: true,
-      supportsMultipleImages: true,
-      maxImages: 2,
+      supportsMultipleImages: true, // VERIFIED: Supports both single and dual image inputs
+      maxImages: 2, // VERIFIED: Supports up to 2 images (image1, image2)
       supportedFormats: ['jpeg', 'png', 'webp'],
       maxResolution: '720p'
     },
@@ -309,8 +327,8 @@ export const REAL_MODEL_DATA: ReplicateModelSchema[] = [
     },
     capabilities: {
       supportsImageInput: true,
-      supportsMultipleImages: false,
-      maxImages: 1,
+      supportsMultipleImages: true, // VERIFIED: Supports both single and dual image inputs
+      maxImages: 2, // VERIFIED: Supports up to 2 images (same as Lite)
       supportedFormats: ['mp4'],
       maxResolution: '1080p'
     },

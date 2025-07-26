@@ -76,7 +76,23 @@ export const ModernGenerator: React.FC<ModernGeneratorProps> = ({ className }) =
 
 
 
-  // Set default model when mode changes (only if current model is not supported)
+  // CRITICAL FIX: Separate model selection from result clearing to prevent race conditions
+
+  // Clear results immediately when mode changes (no dependencies on model state)
+  useEffect(() => {
+    // Clear previous generation results when switching modes
+    setGenerationResults([])
+    setShowResults(false)
+
+    // Reset any error states
+    setGenerationState(prev => ({
+      ...prev,
+      error: null,
+      stage: 'idle'
+    }))
+  }, [currentMode]) // Only depend on mode changes - this prevents race conditions
+
+  // Set default model when mode changes (separate from result clearing)
   useEffect(() => {
     if (availableModels.length > 0) {
       // Only change model if current model doesn't support the new mode
@@ -84,7 +100,7 @@ export const ModernGenerator: React.FC<ModernGeneratorProps> = ({ className }) =
         setSelectedModel(availableModels[0])
       }
     }
-  }, [currentMode, availableModels, selectedModel])
+  }, [currentMode, availableModels]) // Removed selectedModel from deps to prevent loops
 
   // Initialize parameters when model changes
   useEffect(() => {
@@ -717,6 +733,8 @@ export const ModernGenerator: React.FC<ModernGeneratorProps> = ({ className }) =
                         onSuggestionUse={handleSuggestionUse}
                         compact={true}
                         className="max-h-[50vh] overflow-y-auto"
+                        currentMode={currentMode}
+                        selectedModel={selectedModel}
                       />
                     </motion.div>
                   )}
@@ -863,9 +881,14 @@ export const ModernGenerator: React.FC<ModernGeneratorProps> = ({ className }) =
             >
               {generationState.isGenerating ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  {/* ENHANCED: Modern AI platform loading animation */}
+                  <div className="flex gap-1">
+                    <div className="w-2 h-2 bg-white rounded-full animate-pulse" style={{ animationDelay: '0ms' }} />
+                    <div className="w-2 h-2 bg-white rounded-full animate-pulse" style={{ animationDelay: '150ms' }} />
+                    <div className="w-2 h-2 bg-white rounded-full animate-pulse" style={{ animationDelay: '300ms' }} />
+                  </div>
                   {generationState.stage === 'preparing' && 'Preparing...'}
-                  {generationState.stage === 'generating' && 'Generating...'}
+                  {generationState.stage === 'generating' && `Generating with ${selectedModel?.name}...`}
                   {generationState.stage === 'complete' && 'Complete!'}
                 </>
               ) : (
