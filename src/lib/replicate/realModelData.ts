@@ -115,7 +115,7 @@ export const REAL_MODEL_DATA: ReplicateModelSchema[] = [
       advanced: [
         {
           name: 'guidance_scale',
-          type: 'float',
+          type: 'number',
           default: 3.5,
           min: 2.0,
           max: 5.0, // CORRECTED: Based on API research

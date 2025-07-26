@@ -7,8 +7,8 @@ export async function POST() {
 
     console.log('🔧 Starting comprehensive security fixes...')
     const results = {
-      fixes_applied: [],
-      errors: [],
+      fixes_applied: [] as string[],
+      errors: [] as string[],
       success: true
     }
 

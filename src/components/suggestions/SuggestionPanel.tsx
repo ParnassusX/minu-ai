@@ -14,12 +14,17 @@ import { DraggableSuggestion } from './DraggableSuggestion'
 import { SuggestionManager } from './SuggestionManager'
 import { toastHelpers } from '@/lib/hooks/useToast'
 import { useDebouncedValue } from '@/lib/hooks/usePerformance'
-import { 
-  Suggestion, 
-  SUGGESTION_CATEGORIES, 
+import {
+  Suggestion,
+  SUGGESTION_CATEGORIES,
   SuggestionCategory,
-  CreateSuggestionRequest 
+  CreateSuggestionRequest
 } from '@/types/suggestion'
+
+// Extended type for suggestions with relevance scoring
+interface SuggestionWithScore extends Suggestion {
+  relevanceScore?: number
+}
 import { 
   Search, 
   Plus, 
@@ -52,7 +57,7 @@ export function SuggestionPanel({
   selectedModel
 }: SuggestionPanelProps) {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([])
-  const [filteredSuggestions, setFilteredSuggestions] = useState<Suggestion[]>([])
+  const [filteredSuggestions, setFilteredSuggestions] = useState<SuggestionWithScore[]>([])
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
@@ -70,7 +75,7 @@ export function SuggestionPanel({
 
   // ENHANCED: Filter suggestions based on search, category, and contextual relevance
   useEffect(() => {
-    let filtered = suggestions
+    let filtered: SuggestionWithScore[] = suggestions.map(s => ({ ...s }))
 
     // Category filtering
     if (selectedCategory !== 'all') {
@@ -97,7 +102,7 @@ export function SuggestionPanel({
           const tagMatch = s.tags.some(tag => tag.toLowerCase().includes(keyword)) ? 1 : 0
           return score + textMatch + titleMatch + tagMatch
         }, 0)
-      }))
+      })) as SuggestionWithScore[]
 
       // If we have a selected model, boost suggestions that mention the model or its category
       if (selectedModel) {
@@ -109,13 +114,13 @@ export function SuggestionPanel({
 
         filtered = filtered.map(s => ({
           ...s,
-          relevanceScore: s.relevanceScore + modelKeywords.reduce((score, keyword) => {
+          relevanceScore: (s.relevanceScore || 0) + modelKeywords.reduce((score, keyword) => {
             const match = s.text.toLowerCase().includes(keyword) ||
                          s.title.toLowerCase().includes(keyword) ||
                          s.tags.some(tag => tag.toLowerCase().includes(keyword))
             return score + (match ? 5 : 0) // Higher boost for model-specific matches
           }, 0)
-        }))
+        })) as SuggestionWithScore[]
       }
     }
 
