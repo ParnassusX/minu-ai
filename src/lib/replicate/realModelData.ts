@@ -183,10 +183,11 @@ export const REAL_MODEL_DATA: ReplicateModelSchema[] = [
         },
         {
           name: 'duration',
-          type: 'select',
-          default: '5',
-          options: ['5', '10'],
-          description: 'Video duration in seconds',
+          type: 'integer',
+          default: 5,
+          min: 5,
+          max: 10,
+          description: 'Video duration in seconds (5 or 10)',
           required: false
         },
         {
@@ -350,10 +351,11 @@ export const REAL_MODEL_DATA: ReplicateModelSchema[] = [
         },
         {
           name: 'duration',
-          type: 'select',
-          default: '5',
-          options: ['5', '10'],
-          description: 'Video duration in seconds',
+          type: 'integer',
+          default: 5,
+          min: 5,
+          max: 10,
+          description: 'Video duration in seconds (5 or 10)',
           required: false
         },
         {
@@ -607,10 +609,11 @@ export const REAL_MODEL_DATA: ReplicateModelSchema[] = [
         },
         {
           name: 'duration',
-          type: 'select',
-          default: '6',
-          options: ['6', '10'],
-          description: 'Video duration in seconds',
+          type: 'integer',
+          default: 6,
+          min: 6,
+          max: 10,
+          description: 'Video duration in seconds (6 or 10)',
           required: false
         },
         {
@@ -948,10 +951,11 @@ export const REAL_MODEL_DATA: ReplicateModelSchema[] = [
       intermediate: [
         {
           name: 'scale',
-          type: 'select',
-          default: '4',
-          options: ['2', '4'],
-          description: 'Upscaling factor',
+          type: 'integer',
+          default: 4,
+          min: 2,
+          max: 4,
+          description: 'Upscaling factor (2x or 4x)',
           required: false
         }
       ],
