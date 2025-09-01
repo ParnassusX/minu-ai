@@ -54,12 +54,21 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({
               muted
             />
           ) : (
-            <img
-              src={result.output.urls[0]}
-              alt="Generated content"
-              className="w-full h-32 object-cover rounded cursor-pointer"
+            <button
+              type="button"
+              aria-label="Open generated content"
+              className="block w-full"
               onClick={() => handleOpenInNewTab(result)}
-            />
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') handleOpenInNewTab(result)
+              }}
+            >
+              <img
+                src={result.output.urls[0]}
+                alt="Generated content"
+                className="w-full h-32 object-cover rounded cursor-pointer"
+              />
+            </button>
           )}
 
           {/* Overlay Actions */}
@@ -96,7 +105,7 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({
         </div>
 
         <div className="text-sm text-gray-600 line-clamp-2">
-          {result.input?.prompt || result.prompt || 'No prompt available'}
+          {(result.input as any)?.prompt || 'No prompt available'}
         </div>
 
         <div className="flex items-center justify-between text-xs text-gray-500">

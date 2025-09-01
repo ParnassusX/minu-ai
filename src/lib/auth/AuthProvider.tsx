@@ -59,15 +59,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (session?.user) {
           try {
-            const { data: profile, error: profileError } = await withTimeout(
-              supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', session.user.id)
-                .single(),
+            const profileQuery = supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', session.user.id)
+              .single()
+
+            const profileResult = await withTimeout(
+              profileQuery as unknown as Promise<any>,
               AUTH_TIMEOUT_MS,
               'profiles.fetch'
             )
+
+            const { data: profile, error: profileError } = profileResult
 
             if (profileError && profileError.code !== 'PGRST116') {
               // PGRST116 is "not found" - acceptable for new users without profiles
@@ -97,15 +101,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (session?.user) {
           try {
-            const { data: profile } = await withTimeout(
-              supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', session.user.id)
-                .single(),
+            const profileQuery = supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', session.user.id)
+              .single()
+
+            const profileResult = await withTimeout(
+              profileQuery as unknown as Promise<any>,
               AUTH_TIMEOUT_MS,
               'profiles.fetch:onAuthStateChange'
             )
+
+            const { data: profile } = profileResult
             setProfile(profile)
           } catch (pfErr) {
             console.warn('Profile fetch (onAuthStateChange) timed out or failed:', pfErr)

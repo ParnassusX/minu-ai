@@ -204,8 +204,8 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      // Only include webhook configuration if webhook URL is provided
-      if (webhookUrl) {
+      // Only include webhook configuration if webhook URL is valid and reachable by Replicate (HTTPS)
+      if (webhookUrl && webhookUrl.startsWith('https://')) {
         predictionConfig.webhook = webhookUrl
         predictionConfig.webhook_events_filter = ['completed']
       }
