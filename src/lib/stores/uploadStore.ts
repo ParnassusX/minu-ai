@@ -5,13 +5,12 @@
 
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
-import { 
-  UploadStore, 
-  UploadedFile, 
-  UploadValidation, 
+import {
+  UploadStore,
+  UploadedFile,
+  UploadValidation,
   UploadConfig,
   DEFAULT_UPLOAD_CONFIGS,
-  FILE_VALIDATION,
   UPLOAD_ERRORS,
   generateFileId,
   createObjectURL,
@@ -50,7 +49,7 @@ export const useUploadStore = create<ExtendedUploadStore>()(
       dragActive: false,
       error: null,
       maxFiles: 1,
-      config: DEFAULT_UPLOAD_CONFIGS.video || {
+      config: DEFAULT_UPLOAD_CONFIGS.images || DEFAULT_UPLOAD_CONFIGS.video || {
         maxFiles: 1,
         maxFileSize: 10 * 1024 * 1024,
         acceptedTypes: ['image/jpeg', 'image/png', 'image/webp'],
@@ -145,39 +144,38 @@ export const useUploadStore = create<ExtendedUploadStore>()(
         }))
       },
 
-      // Mode integration - uses MODE_CONFIGS as single source of truth
+      // Mode integration - safe implementation without circular dependencies
       updateConfigForMode: (mode: GeneratorMode) => {
-        const { MODE_CONFIGS } = require('@/lib/types/modes')
-        const modeConfig = MODE_CONFIGS[mode]
+        const state = get()
+        const config = DEFAULT_UPLOAD_CONFIGS[mode] || DEFAULT_UPLOAD_CONFIGS.images
 
-        // Create upload config from mode config
-        const uploadConfig = modeConfig.uploadConfig
-        if (uploadConfig) {
-          const config = {
-            maxFiles: uploadConfig.maxFiles,
-            maxFileSize: DEFAULT_UPLOAD_CONFIGS[mode]?.maxFileSize || 10 * 1024 * 1024,
-            acceptedTypes: uploadConfig.acceptedTypes,
-            acceptedExtensions: uploadConfig.acceptedTypes.map((type: string) =>
-              type.replace('image/', '.').replace('jpeg', 'jpg')
-            ),
-            requiresDimensions: true,
-            minDimensions: { width: 256, height: 256 },
-            maxDimensions: { width: 4096, height: 4096 },
-            supportsMask: uploadConfig.supportsMask,
-            supportsMultiple: uploadConfig.supportsMultiple
+        // Only update if the configuration actually changed
+        if (config && (
+          !state.config ||
+          state.config.maxFiles !== config.maxFiles ||
+          JSON.stringify(state.config.acceptedTypes) !== JSON.stringify(config.acceptedTypes)
+        )) {
+          // Determine if we need to clear files
+          const needsClearFiles = state.files.length > config.maxFiles
+
+          // Clean up object URLs if we're clearing files
+          if (needsClearFiles) {
+            state.files.forEach(file => revokeObjectURL(file.url))
           }
 
+          // Single set call to prevent multiple re-renders
           set({
             config,
             maxFiles: config.maxFiles,
-            lastModeUpdate: Date.now()
+            lastModeUpdate: Date.now(),
+            // Clear files in the same update if needed
+            ...(needsClearFiles && {
+              files: [],
+              error: null,
+              uploadProgress: 0,
+              isUploading: false
+            })
           })
-
-          // Clear files if switching to a mode with different requirements
-          const state = get()
-          if (state.files.length > config.maxFiles) {
-            state.clearFiles()
-          }
         }
       },
 
@@ -187,8 +185,9 @@ export const useUploadStore = create<ExtendedUploadStore>()(
       },
 
       isUploadRequiredForMode: (mode: GeneratorMode) => {
-        const { MODE_CONFIGS } = require('@/lib/types/modes')
-        return MODE_CONFIGS[mode].requiresUpload
+        // Safe mode-based upload requirements without circular dependency
+        // Based on mode characteristics: video/enhance require uploads, images optional
+        return mode === 'video' || mode === 'enhance'
       },
 
       // File validation
@@ -358,17 +357,26 @@ export const useUploadStore = create<ExtendedUploadStore>()(
   )
 )
 
-// Hook for mode-specific upload requirements - uses MODE_CONFIGS as single source of truth
+// Hook for mode-specific upload requirements - safe implementation without circular dependencies
 export const useModeUploadRequirements = (mode: GeneratorMode) => {
-  // Import MODE_CONFIGS dynamically to avoid circular dependencies
-  const { MODE_CONFIGS } = require('@/lib/types/modes')
-  const modeConfig = MODE_CONFIGS[mode]
+  // Safe mode-based configuration without circular dependency
+  const config = DEFAULT_UPLOAD_CONFIGS[mode] || DEFAULT_UPLOAD_CONFIGS.images
+  const isRequired = mode === 'video' || mode === 'enhance'
 
   return {
-    isRequired: modeConfig.requiresUpload,
-    isOptional: modeConfig.uploadConfig && !modeConfig.uploadConfig.required,
-    maxFiles: modeConfig.uploadConfig?.maxFiles || 0,
-    config: DEFAULT_UPLOAD_CONFIGS[mode] || null,
-    modeConfig: modeConfig
+    isRequired,
+    isOptional: !isRequired,
+    maxFiles: config?.maxFiles || 1,
+    config,
+    modeConfig: {
+      requiresUpload: isRequired,
+      uploadConfig: {
+        maxFiles: config?.maxFiles || 1,
+        acceptedTypes: config?.acceptedTypes || ['image/jpeg', 'image/png', 'image/webp'],
+        required: isRequired,
+        supportsMask: config?.supportsMask || false,
+        supportsMultiple: config?.supportsMultiple || false
+      }
+    }
   }
 }

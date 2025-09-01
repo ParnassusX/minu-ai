@@ -260,28 +260,34 @@ export function SuggestionPanel({
   }
 
   const handleUseSuggestion = async (suggestion: Suggestion) => {
-    // Increment usage count
+    console.log('🔥 Using suggestion:', suggestion.text) // Debug log
+
+    // Call the callback FIRST - don't let API calls block the user experience
+    onSuggestionUse?.(suggestion)
+
+    // Increment usage count in background (non-blocking)
     try {
-      await fetch(`/api/suggestions/${suggestion.id}`, {
+      fetch(`/api/suggestions/${suggestion.id}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ action: 'increment_usage' })
+      }).then(() => {
+        // Update local state
+        setSuggestions(prev => prev.map(s =>
+          s.id === suggestion.id
+            ? { ...s, usageCount: (s.usageCount || 0) + 1 }
+            : s
+        ))
+      }).catch(error => {
+        console.error('Error incrementing usage:', error)
+        // Fail silently - don't affect user experience
       })
-
-      // Update local state
-      setSuggestions(prev => prev.map(s => 
-        s.id === suggestion.id 
-          ? { ...s, usageCount: s.usageCount + 1 }
-          : s
-      ))
     } catch (error) {
       console.error('Error incrementing usage:', error)
+      // Continue anyway - don't block the user
     }
-
-    // Call the callback
-    onSuggestionUse?.(suggestion)
   }
 
   const handleDragStart = (event: DragStartEvent) => {

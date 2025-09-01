@@ -62,7 +62,7 @@ class ReplicateModelService {
     try {
       const response = await fetch(`${this.baseUrl}/models/${owner}/${name}`, {
         headers: {
-          'Authorization': `Token ${process.env.NEXT_PUBLIC_REPLICATE_API_TOKEN}`,
+          'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
           'Content-Type': 'application/json',
         },
       })
@@ -102,20 +102,22 @@ class ReplicateModelService {
       supportedModes: this.inferSupportedModes(inputSchema),
       provider: this.capitalizeProvider(modelData.owner),
       pricing: {
-        costPerImage: this.estimateCost(modelData)
+        costPerImage: this.estimateCost(modelData),
+        currency: 'USD'
       },
       performance: {
         speed: 'medium',
-        averageTime: 30.0
+        averageTime: 30.0,
+        reliability: 0.95
       },
       capabilities: this.extractCapabilities(inputSchema),
-      parameters: {
-        basic: parameters.filter(p => this.isBasicParameter(p.name)),
-        intermediate: parameters.filter(p => this.isIntermediateParameter(p.name)),
-        advanced: parameters.filter(p => this.isAdvancedParameter(p.name))
-      },
+      parameters: parameters,
       replicateModel: `${modelData.owner}/${modelData.name}`,
-      isOfficial: this.isOfficialModel(modelData.owner)
+      isActive: true,
+      isPriority: false,
+      tags: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     }
   }
 
@@ -138,7 +140,8 @@ class ReplicateModelService {
         max: property.maximum,
         options: property.enum || property.oneOf?.map((opt: any) => opt.const),
         description: property.description || `${name} parameter`,
-        required: inputSchema.required?.includes(name) || false
+        required: inputSchema.required?.includes(name) || false,
+        order: Object.keys(inputSchema.properties).indexOf(name)
       })
     }
 
@@ -151,7 +154,7 @@ class ReplicateModelService {
   private mapParameterType(property: any): ModelParameter['type'] {
     if (property.enum || property.oneOf) return 'select'
     if (property.type === 'number' || property.type === 'integer') {
-      return property.minimum !== undefined && property.maximum !== undefined ? 'number' : 'integer'
+      return 'number'
     }
     if (property.type === 'boolean') return 'select' // We handle booleans as select
     return 'string'
@@ -186,10 +189,21 @@ class ReplicateModelService {
    */
   private extractCapabilities(inputSchema: any): any {
     const properties = inputSchema.properties || {}
-    
+
+    // CRITICAL FIX: Comprehensive image parameter detection
+    const imageParameters = [
+      'image', 'input_image', 'last_frame_image',  // Standard parameters
+      'image1', 'image2',                          // Legacy multi-image
+      'input_image_1', 'input_image_2',           // Multi-image Kontext
+      'first_frame', 'last_frame'                 // Video frame parameters
+    ]
+
+    const hasImageInput = imageParameters.some(param => properties[param])
+    const hasMultipleImages = this.countImageInputs(properties) > 1
+
     return {
-      supportsImageInput: !!(properties.image || properties.input_image),
-      supportsMultipleImages: !!(properties.image1 || properties.image2),
+      supportsImageInput: hasImageInput,
+      supportsMultipleImages: hasMultipleImages,
       maxImages: this.countImageInputs(properties),
       supportsTextInput: !!properties.prompt,
       supportsVideoOutput: !!(properties.duration || properties.fps),
@@ -201,11 +215,20 @@ class ReplicateModelService {
    * Count image input parameters
    */
   private countImageInputs(properties: any): number {
+    const imageParameters = [
+      'image', 'input_image', 'last_frame_image',  // Standard parameters
+      'image1', 'image2',                          // Legacy multi-image
+      'input_image_1', 'input_image_2',           // Multi-image Kontext
+      'first_frame', 'last_frame'                 // Video frame parameters
+    ]
+
     let count = 0
-    for (const key of Object.keys(properties)) {
-      if (key.includes('image') || key === 'input_image') count++
+    for (const param of imageParameters) {
+      if (properties[param]) count++
     }
-    return Math.max(count, 1)
+
+    // Return actual count, don't force minimum of 1
+    return count
   }
 
   /**

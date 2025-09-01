@@ -4,8 +4,9 @@ import { getAuthenticatedUser } from '@/lib/auth/server'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     // Check authentication
     const { user, error: authError } = await getAuthenticatedUser()
@@ -15,8 +16,6 @@ export async function GET(
         { status: 401 }
       )
     }
-
-    const { id } = params
 
     // Fetch specific prompt from database
     const supabase = createClient()
@@ -62,8 +61,9 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     // Check authentication
     const { user, error: authError } = await getAuthenticatedUser()
@@ -74,7 +74,6 @@ export async function PATCH(
       )
     }
 
-    const { id } = params
     const body = await request.json()
     const { favorite } = body
 
@@ -100,9 +99,11 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
+
     // Check authentication
     const { user, error: authError } = await getAuthenticatedUser()
     if (authError || !user) {
@@ -111,8 +112,6 @@ export async function DELETE(
         { status: 401 }
       )
     }
-
-    const { id } = params
 
     // Delete prompt from database
     const supabase = createClient()

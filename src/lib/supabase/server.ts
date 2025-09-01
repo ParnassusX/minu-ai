@@ -1,23 +1,36 @@
 import { createServerClient as createSupabaseServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { Database } from '@/types/database'
+import { Environment } from '@/lib/config/environment'
 
 export const createClient = () => {
   const cookieStore = cookies()
+  const config = Environment.getInstance().getSupabaseConfig()
 
   return createSupabaseServerClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    config.url,
+    config.anonKey,
     {
       cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value
+        async get(name: string) {
+          const store = await cookieStore
+          return store.get(name)?.value
         },
-        set(name: string, value: string, options: any) {
-          cookieStore.set({ name, value, ...options })
+        async set(name: string, value: string, options: any) {
+          try {
+            const store = await cookieStore
+            store.set({ name, value, ...options })
+          } catch (error) {
+            // Ignore cookie errors in server context
+          }
         },
-        remove(name: string, options: any) {
-          cookieStore.set({ name, value: '', ...options })
+        async remove(name: string, options: any) {
+          try {
+            const store = await cookieStore
+            store.set({ name, value: '', ...options })
+          } catch (error) {
+            // Ignore cookie errors in server context
+          }
         },
       },
     }
@@ -26,9 +39,11 @@ export const createClient = () => {
 
 // Service role client for development (bypasses RLS)
 export const createServiceClient = () => {
+  const config = Environment.getInstance().getSupabaseConfig()
+
   return createSupabaseServerClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    config.url,
+    config.serviceRoleKey!,
     {
       auth: {
         autoRefreshToken: false,

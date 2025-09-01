@@ -216,20 +216,7 @@
 }
 
 /* Modern Button Styles */
-.btn-primary {
-  background: linear-gradient(135deg, var(--interactive-primary), var(--interactive-primary-active));
-  color: var(--text-inverse);
-  border: none;
-  border-radius: var(--radius-lg);
-  font-weight: var(--font-weight-medium);
-  transition: all var(--duration-normal) var(--ease-out);
-}
-
-.btn-primary:hover {
-  background: linear-gradient(135deg, var(--interactive-primary-hover), var(--interactive-primary));
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-lg);
-}
+/* Removed unused .btn-primary - using component-based buttons instead */
 
 /* Premium Input Styles */
 .input-premium {

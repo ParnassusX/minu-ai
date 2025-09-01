@@ -69,23 +69,47 @@ export class ImageDownloadService {
     options: DownloadOptions = {}
   ): Promise<void> {
     const result = await this.downloadImage(imageUrl, imageId, options)
-    
+
     if (!result.success || !result.downloadUrl) {
       throw new Error(result.error || 'Failed to prepare download')
     }
 
-    // Create download link
-    const link = document.createElement('a')
-    link.href = result.downloadUrl
-    link.download = result.filename || `minu-ai-${imageId}-hq.jpg`
-    
-    // Add CORS headers for cross-origin downloads
-    link.setAttribute('crossorigin', 'anonymous')
-    
-    // Trigger download
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
+    try {
+      // Try to fetch the image and create a blob URL for better download control
+      const response = await fetch(result.downloadUrl)
+      if (response.ok) {
+        const blob = await response.blob()
+        const blobUrl = URL.createObjectURL(blob)
+
+        // Create download link with blob URL
+        const link = document.createElement('a')
+        link.href = blobUrl
+        link.download = result.filename || `minu-ai-${imageId}-hq.jpg`
+        link.style.display = 'none'
+
+        // Trigger download
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+
+        // Clean up blob URL
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 100)
+      } else {
+        throw new Error('Failed to fetch image')
+      }
+    } catch (error) {
+      console.warn('Blob download failed, falling back to direct link:', error)
+      // Fallback to direct link method
+      const link = document.createElement('a')
+      link.href = result.downloadUrl
+      link.download = result.filename || `minu-ai-${imageId}-hq.jpg`
+      link.setAttribute('target', '_blank')
+      link.style.display = 'none'
+
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    }
   }
 
 

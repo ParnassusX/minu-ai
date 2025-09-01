@@ -5,7 +5,7 @@ import { AlertTriangle, RefreshCw, Bug, Home } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { GlassCard } from '@/components/ui/glass'
-import { toastHelpers } from '@/lib/hooks/useToast'
+// import { toastHelpers } from '@/lib/hooks/useToast' // Temporarily disabled to fix chunk loading
 
 interface ErrorBoundaryState {
   hasError: boolean
@@ -33,8 +33,8 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
     this.setState({ errorInfo })
     this.props.onError?.(error, errorInfo)
 
-    // Show error toast
-    toastHelpers.error('Component Error', error.message)
+    // Show error toast - temporarily disabled
+    // toastHelpers.error('Component Error', error.message)
 
     // Log error to console in development
     if (process.env.NODE_ENV === 'development') {
@@ -67,7 +67,8 @@ interface ErrorFallbackProps {
 
 function DefaultErrorFallback({ error, retry }: ErrorFallbackProps) {
   const handleReportError = () => {
-    toastHelpers.info('Error Reported', 'Thank you for reporting this issue')
+    // toastHelpers.info('Error Reported', 'Thank you for reporting this issue')
+    console.log('Error reported:', error.message)
   }
 
   return (

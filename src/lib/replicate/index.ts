@@ -98,6 +98,10 @@ export class ReplicateService {
       duration?: number
       fps?: number
       aspectRatio?: string
+      // Schema-compliant parameter names
+      image?: string
+      last_frame_image?: string
+      // Legacy support
       first_frame_image?: string
       subject_reference?: string
       seed?: number
@@ -112,19 +116,29 @@ export class ReplicateService {
         modelId = 'minimax-video-01'
       }
 
+      // Map legacy parameters to schema-compliant names
+      const image = options.image || options.first_frame_image
+      const lastFrameImage = options.last_frame_image || options.subject_reference
+
+      // Prepare base parameters
+      const baseParams = {
+        prompt,
+        duration: options.duration || 5,
+        fps: options.fps || 24,
+        aspect_ratio: options.aspectRatio || '16:9',
+        seed: options.seed,
+        ...(image && { image }),
+        ...(lastFrameImage && { last_frame_image: lastFrameImage }),
+        ...options
+      }
+
+      // Use base parameters directly (V2 system handles transformations)
+      const transformedParams = baseParams
+
       // Prepare generation request
       const request: GenerationRequest = {
         modelId,
-        params: {
-          prompt,
-          duration: options.duration || 5,
-          fps: options.fps || 24,
-          aspectRatio: options.aspectRatio || '16:9',
-          first_frame_image: options.first_frame_image,
-          subject_reference: options.subject_reference,
-          seed: options.seed,
-          ...options
-        }
+        params: transformedParams
       }
 
       // Generate videos using the same client method (it handles both images and videos)
@@ -197,17 +211,16 @@ export class ReplicateService {
       console.log('Generating with model:', model, 'Input:', input)
 
       // Access the API token from the ReplicateClient instance
-      const apiToken = (this.client as any).apiToken || process.env.NEXT_PUBLIC_REPLICATE_API_TOKEN || process.env.REPLICATE_API_TOKEN
+      const apiToken = (this.client as any).apiToken || process.env.REPLICATE_API_TOKEN
 
-      // Call Replicate API directly
-      const response = await fetch('https://api.replicate.com/v1/predictions', {
+      // Call Replicate API directly using model name format
+      const response = await fetch('https://api.replicate.com/v1/models/' + model + '/predictions', {
         method: 'POST',
         headers: {
           'Authorization': `Token ${apiToken}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          version: model, // For now, use model as version
           input: input
         })
       })
@@ -218,24 +231,67 @@ export class ReplicateService {
       }
 
       const result = await response.json()
+      console.log('🔍 Replicate API raw response:', JSON.stringify(result, null, 2))
+
+      // Wait for the prediction to complete
+      let prediction = result
+      const maxWaitTime = 300000 // 5 minutes
+      const startTime = Date.now()
+
+      while (prediction.status === 'starting' || prediction.status === 'processing') {
+        if (Date.now() - startTime > maxWaitTime) {
+          throw new Error('Generation timeout after 5 minutes')
+        }
+
+        console.log(`🔄 Waiting for prediction ${prediction.id}, status: ${prediction.status}`)
+        await new Promise(resolve => setTimeout(resolve, 2000)) // Wait 2 seconds
+
+        // Get updated prediction status
+        const statusResponse = await fetch(`https://api.replicate.com/v1/predictions/${prediction.id}`, {
+          headers: {
+            'Authorization': `Token ${apiToken}`,
+            'Content-Type': 'application/json'
+          }
+        })
+
+        if (!statusResponse.ok) {
+          throw new Error(`Failed to get prediction status: ${statusResponse.statusText}`)
+        }
+
+        prediction = await statusResponse.json()
+        console.log(`📊 Prediction ${prediction.id} status: ${prediction.status}`)
+      }
+
+      if (prediction.status === 'failed') {
+        throw new Error(prediction.error || 'Generation failed')
+      }
+
+      if (prediction.status === 'canceled') {
+        throw new Error('Generation was canceled')
+      }
+
+      // Extract the generated image URLs
+      const imageUrls = Array.isArray(prediction.output) ? prediction.output : [prediction.output]
+      console.log('🖼️ Generated image URLs:', imageUrls)
 
       return {
         success: true,
-        data: [{
-          id: result.id,
-          url: Array.isArray(result.output) ? result.output[0] : result.output || '',
+        data: imageUrls.filter((url: string) => url).map((url: string, index: number) => ({
+          id: `${prediction.id}-${index}`,
+          url: url,
           prompt: input.prompt || '',
           model: model,
           timestamp: new Date(),
           metadata: {
             width: 1024, // Default width
             height: 1024, // Default height
-            generationTime: 0, // Will be calculated
+            generationTime: Date.now() - startTime,
             model,
             input,
-            created_at: result.created_at
+            created_at: prediction.created_at,
+            prediction_id: prediction.id
           }
-        }]
+        }))
       }
 
     } catch (error) {

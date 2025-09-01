@@ -46,42 +46,53 @@ export class UnifiedStorageService {
    * Store file with Cloudinary as primary, Supabase as fallback
    */
   async storeFromUrl(url: string, metadata: UnifiedStorageMetadata): Promise<UnifiedStorageResult> {
-    // Try Cloudinary first for persistent storage
-    try {
-      const cloudinaryMetadata: CloudinaryMetadata = {
-        originalUrl: metadata.originalUrl,
-        filename: metadata.filename,
-        mimeType: metadata.mimeType,
-        width: metadata.width,
-        height: metadata.height,
-        duration: metadata.duration,
-        generatedAt: metadata.generatedAt,
-        modelUsed: metadata.modelUsed,
-        prompt: metadata.prompt
-      }
+    // Check if Cloudinary is properly configured
+    const cloudinaryConfigured = process.env.CLOUDINARY_API_KEY &&
+                                 process.env.CLOUDINARY_API_SECRET &&
+                                 !process.env.CLOUDINARY_API_KEY.includes('placeholder') &&
+                                 !process.env.CLOUDINARY_API_SECRET.includes('placeholder')
 
-      const cloudinaryResult = await this.cloudinary.storeFromUrl(url, cloudinaryMetadata)
-      
-      if (cloudinaryResult.success && cloudinaryResult.data) {
-        return {
-          success: true,
-          data: {
-            url: cloudinaryResult.data.publicUrl,
-            secureUrl: cloudinaryResult.data.secureUrl,
-            provider: 'cloudinary',
-            persistent: true,
-            publicId: cloudinaryResult.data.publicId,
-            metadata: {
-              ...metadata,
-              width: cloudinaryResult.data.metadata.width,
-              height: cloudinaryResult.data.metadata.height,
-              duration: cloudinaryResult.data.metadata.duration
+    // Try Cloudinary first for persistent storage (only if properly configured)
+    if (cloudinaryConfigured) {
+      try {
+        const cloudinaryMetadata: CloudinaryMetadata = {
+          originalUrl: metadata.originalUrl,
+          filename: metadata.filename,
+          mimeType: metadata.mimeType,
+          width: metadata.width,
+          height: metadata.height,
+          duration: metadata.duration,
+          generatedAt: metadata.generatedAt,
+          modelUsed: metadata.modelUsed,
+          prompt: metadata.prompt
+        }
+
+        const cloudinaryResult = await this.cloudinary.storeFromUrl(url, cloudinaryMetadata)
+
+        if (cloudinaryResult.success && cloudinaryResult.data) {
+          console.log('✅ Cloudinary storage successful')
+          return {
+            success: true,
+            data: {
+              url: cloudinaryResult.data.publicUrl,
+              secureUrl: cloudinaryResult.data.secureUrl,
+              provider: 'cloudinary',
+              persistent: true,
+              publicId: cloudinaryResult.data.publicId,
+              metadata: {
+                ...metadata,
+                width: cloudinaryResult.data.metadata.width,
+                height: cloudinaryResult.data.metadata.height,
+                duration: cloudinaryResult.data.metadata.duration
+              }
             }
           }
         }
+      } catch (error) {
+        console.warn('Cloudinary storage failed, falling back to Supabase:', error)
       }
-    } catch (error) {
-      console.warn('Cloudinary storage failed, falling back to Supabase:', error)
+    } else {
+      console.log('📋 Cloudinary not configured (using placeholder keys), using Supabase storage')
     }
 
     // Fallback to Supabase
@@ -137,6 +148,55 @@ export class UnifiedStorageService {
   /**
    * Store buffer with Cloudinary as primary, Supabase as fallback
    */
+  async storeBufferTemporary(buffer: Buffer, metadata: UnifiedStorageMetadata): Promise<UnifiedStorageResult> {
+    // For temporary storage (input images), only use Supabase, skip Cloudinary
+    console.log('📤 Storing buffer temporarily (Supabase only)...')
+
+    try {
+      const supabaseMetadata: StorageMetadata = {
+        originalUrl: metadata.originalUrl,
+        filename: metadata.filename,
+        mimeType: metadata.mimeType,
+        fileSize: 0, // Will be determined by Supabase storage
+        width: metadata.width,
+        height: metadata.height,
+        duration: metadata.duration,
+        generatedAt: metadata.generatedAt,
+        modelUsed: metadata.modelUsed,
+        prompt: metadata.prompt
+      }
+
+      const supabaseResult = await this.supabase.storeBuffer(buffer, supabaseMetadata)
+
+      if (supabaseResult.success && supabaseResult.data) {
+        console.log('✅ Temporary storage successful (Supabase)')
+        return {
+          success: true,
+          data: {
+            url: supabaseResult.data.publicUrl,
+            secureUrl: supabaseResult.data.publicUrl,
+            provider: 'supabase',
+            persistent: false, // Mark as temporary
+            publicId: supabaseResult.data.path,
+            metadata: {
+              ...metadata,
+              width: supabaseResult.data.metadata.width,
+              height: supabaseResult.data.metadata.height,
+              duration: supabaseResult.data.metadata.duration
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error('❌ Temporary storage failed:', error)
+    }
+
+    return {
+      success: false,
+      error: 'Failed to store buffer temporarily'
+    }
+  }
+
   async storeBuffer(buffer: Buffer, metadata: UnifiedStorageMetadata): Promise<UnifiedStorageResult> {
     // Try Cloudinary first
     try {

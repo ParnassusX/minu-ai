@@ -1,0 +1,45 @@
+{
+  "name": "minu-ai-generator-v2",
+  "version": "2.0.0",
+  "description": "Rebuilt Minu.AI Generator - Clean, Stable, Production-Ready",
+  "private": true,
+  "dependencies": {
+    "next": "14.2.15",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "typescript": "^5.6.3",
+    "replicate": "^0.34.1",
+    "@supabase/supabase-js": "^2.45.4",
+    "lucide-react": "^0.446.0",
+    "tailwindcss": "^3.4.0",
+    "@radix-ui/react-select": "^2.0.0",
+    "@radix-ui/react-button": "^2.0.0",
+    "@radix-ui/react-textarea": "^1.0.0",
+    "zustand": "^4.4.7",
+    "zod": "^3.23.8",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^2.5.3"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.5",
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.1",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "14.2.15",
+    "prettier": "^3.3.3",
+    "@typescript-eslint/eslint-plugin": "^8.8.1",
+    "@typescript-eslint/parser": "^8.8.1"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  }
+}

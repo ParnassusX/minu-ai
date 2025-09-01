@@ -105,24 +105,24 @@ describe('Duplicate Prompt Interface Fix', () => {
     })
   })
 
-  describe('Integration Test - CleanGeneratorInterface Usage', () => {
+  describe('Integration Test - Generator V2 Usage', () => {
     it('should prevent duplicate prompt interfaces in UI', () => {
-      // Test that the utility functions work as expected for the CleanGeneratorInterface
+      // Test that the utility functions work as expected for Generator V2
       const modelId = 'flux-schnell'
       const uiParams = getUIParameters(modelId)
-      
-      // Simulate what CleanGeneratorInterface does
+
+      // Simulate what Generator V2 does
       const basicParams = uiParams.basic
       const intermediateParams = uiParams.intermediate
-      
+
       // Verify no prompt parameters exist in either level
       const allUIParams = [...basicParams, ...intermediateParams]
-      const promptParams = allUIParams.filter(p => 
-        p.name === 'prompt' || 
-        p.name === 'text_prompt' || 
+      const promptParams = allUIParams.filter(p =>
+        p.name === 'prompt' ||
+        p.name === 'text_prompt' ||
         p.name === 'description'
       )
-      
+
       expect(promptParams).toHaveLength(0)
     })
   })

@@ -88,8 +88,8 @@ export function verifyModelConfiguration(modelId: string): ModelVerificationResu
 
   // Check parameter exposure
   const uiParams = getUIParameters(modelId)
-  const allUIParams = [...uiParams.basic, ...uiParams.intermediate, ...uiParams.advanced]
-  const allSchemaParams = [...schema.parameters.basic, ...schema.parameters.intermediate, ...schema.parameters.advanced]
+  const allUIParams = [...uiParams.basic, ...uiParams.intermediate, ...uiParams.advanced] as any[]
+  const allSchemaParams = [...schema.parameters.basic, ...schema.parameters.intermediate, ...schema.parameters.advanced] as any[]
   
   // Verify no duplicate prompts in UI parameters
   const promptParams = allUIParams.filter(p => 

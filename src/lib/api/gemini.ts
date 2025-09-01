@@ -294,9 +294,9 @@ let geminiClient: GeminiClient | null = null
  */
 export function getGeminiClient(): GeminiClient {
   if (!geminiClient) {
-    const apiKey = process.env.GOOGLE_GEMINI_API_KEY
+    const apiKey = process.env.GEMINI_API_KEY
     if (!apiKey) {
-      throw new Error('GOOGLE_GEMINI_API_KEY environment variable is required')
+      throw new Error('GEMINI_API_KEY environment variable is required')
     }
     geminiClient = new GeminiClient(apiKey)
   }

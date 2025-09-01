@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { UnifiedLayout } from '@/components/layout/UnifiedLayout'
 import { GlassCard, PremiumButton, PremiumInput } from '@/components/ui/premium-glass'
 import { Icons } from '@/components/ui/premium-icons'
@@ -33,11 +33,81 @@ export default function SettingsPage() {
     autoSave: true,
     darkMode: theme === 'dark'
   })
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(true)
 
-  const handleSave = () => {
-    console.log('Settings saved:', formData)
-    // TODO: Implement actual save functionality
+  const handleSave = async () => {
+    try {
+      setSaving(true)
+      setError('')
+
+      const response = await fetch('/api/settings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to save settings')
+      }
+
+      const result = await response.json()
+      console.log('Settings saved successfully:', result)
+
+      // Show success message
+      setError('')
+      // You can add a success toast here if you have a toast system
+
+    } catch (error) {
+      console.error('Error saving settings:', error)
+      setError(error instanceof Error ? error.message : 'Failed to save settings')
+    } finally {
+      setSaving(false)
+    }
   }
+
+  // Load existing settings on component mount
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        setLoading(true)
+        const response = await fetch('/api/settings')
+
+        if (response.ok) {
+          const settings = await response.json()
+          setFormData(prev => ({
+            ...prev,
+            replicateApiKey: settings.replicateApiKey || '',
+            geminiApiKey: settings.geminiApiKey || '',
+            defaultModel: settings.defaultModel || 'flux-schnell',
+            imageQuality: settings.imageQuality || 'standard',
+            autoSave: settings.autoSave ?? true
+          }))
+
+          if (settings.notificationPreferences) {
+            setNotifications(settings.notificationPreferences)
+          }
+        }
+      } catch (error) {
+        console.error('Error loading settings:', error)
+        setError('Failed to load settings')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadSettings()
+  }, [])
+
+  useEffect(() => {
+    if (theme) {
+      setFormData(prev => ({ ...prev, darkMode: theme === 'dark' }))
+    }
+  }, [theme])
 
   return (
     <UnifiedLayout>
@@ -308,13 +378,37 @@ export default function SettingsPage() {
                   Account security and privacy settings
                 </Typography>
 
-                <PremiumButton variant="outline" className="w-full">
+                <PremiumButton
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => {
+                    // TODO: Implement password change modal
+                    alert('Password change functionality will be implemented in the next update')
+                  }}
+                >
                   Change Password
                 </PremiumButton>
-                <PremiumButton variant="outline" className="w-full">
+                <PremiumButton
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => {
+                    // TODO: Implement 2FA setup modal
+                    alert('Two-factor authentication setup will be implemented in the next update')
+                  }}
+                >
                   Two-Factor Authentication
                 </PremiumButton>
-                <PremiumButton variant="outline" className="w-full text-error-600 hover:text-error-700">
+                <PremiumButton
+                  variant="outline"
+                  className="w-full text-error-600 hover:text-error-700"
+                  onClick={() => {
+                    const confirmed = confirm('Are you sure you want to delete your account? This action cannot be undone.')
+                    if (confirmed) {
+                      // TODO: Implement account deletion
+                      alert('Account deletion functionality will be implemented in the next update')
+                    }
+                  }}
+                >
                   Delete Account
                 </PremiumButton>
               </div>
@@ -324,6 +418,12 @@ export default function SettingsPage() {
 
         {/* Save Button - Phase 3 Enhanced */}
         <GlassCard variant="floating" size="md" animation="slideUp" glow="prominent">
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+              <p className="text-red-700 text-sm">{error}</p>
+            </div>
+          )}
+
           <div className="flex justify-end">
             <PremiumButton
               variant="luxury"
@@ -331,9 +431,10 @@ export default function SettingsPage() {
               animation="shimmer"
               onClick={handleSave}
               className="shadow-lg"
+              disabled={saving || loading}
             >
               <Icons.save size="sm" className="mr-2" />
-              Save Changes
+              {saving ? 'Saving...' : 'Save Changes'}
             </PremiumButton>
           </div>
         </GlassCard>

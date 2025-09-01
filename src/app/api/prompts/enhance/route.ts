@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
           .insert({
             user_id: user.id,
             prompt_note_id: body.promptNoteId || null,
-            model_used: 'mock-enhancement',
+            model_used: 'gemini-pro',
             generation_successful: true,
             used_at: new Date().toISOString()
           })
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         enhancedContent,
         originalContent: body.content,
-        model: 'mock-enhancement'
+        model: 'gemini-pro'
       })
     } catch (aiError) {
       console.error('Error calling Gemini AI:', aiError)

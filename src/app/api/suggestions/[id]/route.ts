@@ -5,8 +5,9 @@ import { UpdateSuggestionRequest } from '@/types/suggestion'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     // Check authentication
     const { user, error: authError } = await getAuthenticatedUser()
@@ -16,8 +17,6 @@ export async function GET(
         { status: 401 }
       )
     }
-
-    const { id } = params
 
     // Fetch suggestion
     const supabase = createClient()
@@ -67,7 +66,7 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Check authentication
@@ -79,7 +78,7 @@ export async function PATCH(
       )
     }
 
-    const { id } = params
+    const { id } = await params
     const body: UpdateSuggestionRequest = await request.json()
 
     // Update suggestion
@@ -152,7 +151,7 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Check authentication
@@ -164,7 +163,7 @@ export async function DELETE(
       )
     }
 
-    const { id } = params
+    const { id } = await params
 
     // Delete suggestion
     const supabase = createClient()
@@ -198,10 +197,10 @@ export async function DELETE(
 // Increment usage count when suggestion is used
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
-    const { id } = params
     const body = await request.json()
     const { action } = body
 

@@ -125,8 +125,8 @@ export const MODE_CONFIGS: Record<GeneratorMode, ModeConfig> = {
     icon: 'zap',
     supportedModels: [
       'real-esrgan',
-      'esrgan',
-      'swinir'
+      'swinir',
+      'ultimate-sd-upscale'
     ],
     requiresUpload: true,
     uploadConfig: {
