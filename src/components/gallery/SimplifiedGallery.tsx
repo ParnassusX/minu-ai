@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
@@ -110,7 +110,7 @@ function SimplifiedImageCard({
 }
 
 export function SimplifiedGallery() {
-  const { images, loading, error, refreshGallery, updateImage, removeImage, clearError } = useGallery()
+  const { images, loading, error, hasMore, refreshGallery, loadMore, updateImage, removeImage, clearError } = useGallery()
   const [previewImage, setPreviewImage] = useState<GalleryImage | null>(null)
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -118,10 +118,37 @@ export function SimplifiedGallery() {
   const [showFilters, setShowFilters] = useState(false)
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false)
 
+  // Infinite scroll setup
+  const loadMoreRef = useRef<HTMLDivElement>(null)
+
   // Load images on mount
   useEffect(() => {
     refreshGallery()
   }, [])
+
+  // Infinite scroll observer
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const target = entries[0]
+        if (target.isIntersecting && hasMore && !loading) {
+          loadMore()
+        }
+      },
+      { threshold: 0.1 }
+    )
+
+    const currentRef = loadMoreRef.current
+    if (currentRef) {
+      observer.observe(currentRef)
+    }
+
+    return () => {
+      if (currentRef) {
+        observer.unobserve(currentRef)
+      }
+    }
+  }, [hasMore, loading, loadMore])
 
   // Filter and sort images
   const filteredAndSortedImages = useMemo(() => {
@@ -260,7 +287,7 @@ export function SimplifiedGallery() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={refreshGallery}
+                onClick={() => refreshGallery()}
                 disabled={loading}
               >
                 <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} />
@@ -347,17 +374,45 @@ export function SimplifiedGallery() {
           </div>
         ) : (
           /* Scrollable Image Grid */
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
-            {filteredAndSortedImages.map((image) => (
-              <SimplifiedImageCard
-                key={image.id}
-                image={image}
-                onPreview={openPreview}
-                onToggleFavorite={handleToggleFavorite}
-                onDownload={handleDownload}
-                onDelete={handleDelete}
-              />
-            ))}
+          <div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
+              {filteredAndSortedImages.map((image) => (
+                <SimplifiedImageCard
+                  key={image.id}
+                  image={image}
+                  onPreview={openPreview}
+                  onToggleFavorite={handleToggleFavorite}
+                  onDownload={handleDownload}
+                  onDelete={handleDelete}
+                />
+              ))}
+            </div>
+
+            {/* Infinite scroll trigger */}
+            {hasMore && (
+              <div ref={loadMoreRef} className="flex justify-center py-8">
+                {loading ? (
+                  <div className="flex items-center space-x-2 text-gray-500">
+                    <RefreshCw className="h-4 w-4 animate-spin" />
+                    <span>Loading more images...</span>
+                  </div>
+                ) : (
+                  <Button
+                    variant="outline"
+                    onClick={loadMore}
+                    className="px-6"
+                  >
+                    Load More Images
+                  </Button>
+                )}
+              </div>
+            )}
+
+            {!hasMore && images.length > 0 && (
+              <div className="text-center py-8 text-gray-500">
+                <p>You've reached the end of your gallery</p>
+              </div>
+            )}
           </div>
         )}
       </div>

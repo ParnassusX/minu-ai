@@ -1,0 +1,31 @@
+{
+  "timestamp": "2025-09-01T22:59:21.772Z",
+  "buildStatus": "SUCCESS",
+  "serverStatus": "RUNNING",
+  "security": {
+    "headers": {
+      "status": 200,
+      "cacheControl": "private, no-store"
+    },
+    "webhook": {
+      "invalidStatus": 401
+    },
+    "status": "PASS"
+  },
+  "authentication": {
+    "loginPageLoads": true,
+    "loginWorks": true
+  },
+  "ui": {
+    "generateButtonEnabled": true,
+    "status": "PASS"
+  },
+  "summary": {
+    "buildReady": true,
+    "serverReady": true,
+    "securityReady": true,
+    "authReady": true,
+    "uiReady": true,
+    "overallStatus": "PRODUCTION READY"
+  }
+}

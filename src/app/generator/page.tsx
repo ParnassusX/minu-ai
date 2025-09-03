@@ -10,12 +10,15 @@ export default function GeneratorPage() {
   const { user, loading } = useAuth()
   const router = useRouter()
 
-  // Production auth logic - only authenticated users allowed
+  // Check for demo mode bypass
+  const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true'
+
+  // Production auth logic - only authenticated users allowed (unless demo mode)
   useEffect(() => {
-    if (!loading && !user) {
+    if (!loading && !user && !isDemoMode) {
       router.push('/auth/login?redirect=/generator')
     }
-  }, [user, loading, router])
+  }, [user, loading, router, isDemoMode])
 
   // Show loading while checking auth
   if (loading) {
@@ -30,13 +33,24 @@ export default function GeneratorPage() {
     )
   }
 
-  // Only allow access if authenticated - NO BYPASSES
-  if (!user) {
+  // Only allow access if authenticated (unless demo mode)
+  if (!user && !isDemoMode) {
     return null
   }
 
   return (
     <GeneratorLayout>
+      {isDemoMode && !user && (
+        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4">
+          <div className="flex">
+            <div className="ml-3">
+              <p className="text-sm">
+                <strong>Development Mode Active</strong> - Authentication bypassed for testing
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
       <Generator />
     </GeneratorLayout>
   )

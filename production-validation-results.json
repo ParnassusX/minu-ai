@@ -1,0 +1,74 @@
+{
+  "timestamp": "2025-09-01T22:56:07.380Z",
+  "security": {
+    "headers": {
+      "status": 200,
+      "cacheControl": "private, no-store"
+    },
+    "webhook": {
+      "invalidStatus": 401
+    }
+  },
+  "models": [
+    {
+      "model": "flux-schnell",
+      "status": 503,
+      "success": false,
+      "error": {
+        "code": "INVALID_INPUT",
+        "message": "Webhook URL is required in production",
+        "userMessage": "Generation is currently unavailable. Please try again later.",
+        "statusCode": 503,
+        "retryable": true
+      }
+    },
+    {
+      "model": "flux-ultra",
+      "status": 503,
+      "success": false,
+      "error": {
+        "code": "INVALID_INPUT",
+        "message": "Webhook URL is required in production",
+        "userMessage": "Generation is currently unavailable. Please try again later.",
+        "statusCode": 503,
+        "retryable": true
+      }
+    },
+    {
+      "model": "flux-kontext-pro",
+      "status": 503,
+      "success": false,
+      "error": {
+        "code": "INVALID_INPUT",
+        "message": "Webhook URL is required in production",
+        "userMessage": "Generation is currently unavailable. Please try again later.",
+        "statusCode": 503,
+        "retryable": true
+      }
+    },
+    {
+      "model": "flux-kontext-max",
+      "status": 503,
+      "success": false,
+      "error": {
+        "code": "INVALID_INPUT",
+        "message": "Webhook URL is required in production",
+        "userMessage": "Generation is currently unavailable. Please try again later.",
+        "statusCode": 503,
+        "retryable": true
+      }
+    },
+    {
+      "model": "seedream-3",
+      "status": 500,
+      "success": false,
+      "error": {
+        "code": "INTERNAL_ERROR",
+        "message": "Request to https://api.replicate.com/v1/models/seedream/seedream-3/predictions failed with status 404 Not Found: {\"detail\":\"The requested resource could not be found.\",\"status\":404}\n.",
+        "userMessage": "An unexpected error occurred. Please try again.",
+        "statusCode": 500,
+        "retryable": true
+      }
+    }
+  ]
+}

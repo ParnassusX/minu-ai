@@ -44,7 +44,7 @@ export const REPLICATE_CONFIG = {
     'flux-ultra': 'black-forest-labs/flux-1.1-pro-ultra',
     'flux-kontext-pro': 'black-forest-labs/flux-kontext-pro',
     'flux-kontext-max': 'black-forest-labs/flux-kontext-max',
-    'seedream-3': 'seedream/seedream-3',
+    'seedream-3': 'bytedance/seedream-3',
     'seedance-1-lite': 'bytedance/seedance-1-lite',
     'seedance-1-pro': 'bytedance/seedance-1-pro'
   }

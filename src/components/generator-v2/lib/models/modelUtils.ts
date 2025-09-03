@@ -14,9 +14,15 @@ export const getModelById = (modelId: string): ModelSchema | null => {
 }
 
 export const getModelsByMode = (mode: GenerationMode): ModelSchema[] => {
-  return ALL_MODELS.filter(model => 
+  const candidates = ALL_MODELS.filter(model =>
     model.supportedModes.includes(mode) && model.isActive
   )
+  // Guarantee uniqueness by id to avoid React duplicate key warnings
+  const byId = new Map<string, ModelSchema>()
+  for (const m of candidates) {
+    if (!byId.has(m.id)) byId.set(m.id, m)
+  }
+  return Array.from(byId.values())
 }
 
 export const getPriorityModels = (): ModelSchema[] => {
@@ -86,8 +92,21 @@ export const validateModelParameters = (
 ): GeneratorError[] => {
   const errors: GeneratorError[] = []
   
+  // Normalize parameters shape: some models define an array, others an object keyed by name
+  const paramArray: ModelParameter[] = Array.isArray(model.parameters)
+    ? model.parameters
+    : Object.entries(model.parameters || {}).map(([name, def]: [string, any]) => ({
+        name,
+        type: def.type || 'string',
+        required: !!def.required,
+        default: def.default,
+        options: def.options || def.enum || undefined,
+        description: def.description || '',
+        order: typeof def.order === 'number' ? def.order : 0
+      }))
+
   // Check required parameters (prompt is handled separately by main prompt field)
-  const requiredParams = model.parameters.filter(param => param.required && param.name !== 'prompt')
+  const requiredParams = paramArray.filter(param => param.required && param.name !== 'prompt')
   for (const param of requiredParams) {
     const value = parameters[param.name]
     if (value === undefined || value === null || value === '') {
@@ -100,7 +119,7 @@ export const validateModelParameters = (
   }
 
   // Validate parameter values (skip prompt since it's validated separately)
-  for (const param of model.parameters) {
+  for (const param of paramArray) {
     if (param.name === 'prompt') continue
     const value = parameters[param.name]
     if (value === undefined || value === null) continue

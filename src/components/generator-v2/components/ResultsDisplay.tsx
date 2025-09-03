@@ -162,8 +162,8 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({
             </div>
           ) : (
             <div className="space-y-3 max-h-96 overflow-y-auto">
-              {history.map((result) => (
-                <React.Fragment key={result.id}>
+              {history.map((result, index) => (
+                <React.Fragment key={`history-${result.id}-${index}`}>
                   {renderResult(result)}
                 </React.Fragment>
               ))}

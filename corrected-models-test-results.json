@@ -1,0 +1,76 @@
+{
+  "timestamp": "2025-09-02T12:43:16.751Z",
+  "models": [
+    {
+      "model": "seedream-3",
+      "path": "bytedance/seedream-3",
+      "status": 401,
+      "success": false,
+      "error": {
+        "code": "UNAUTHORIZED",
+        "message": "Authentication required",
+        "userMessage": "Please sign in to generate content.",
+        "statusCode": 401,
+        "retryable": false
+      }
+    },
+    {
+      "model": "seedance-1-lite",
+      "path": "bytedance/seedance-1-lite",
+      "status": 401,
+      "success": false,
+      "error": {
+        "code": "UNAUTHORIZED",
+        "message": "Authentication required",
+        "userMessage": "Please sign in to generate content.",
+        "statusCode": 401,
+        "retryable": false
+      }
+    },
+    {
+      "model": "seedance-1-pro",
+      "path": "bytedance/seedance-1-pro",
+      "status": 401,
+      "success": false,
+      "error": {
+        "code": "UNAUTHORIZED",
+        "message": "Authentication required",
+        "userMessage": "Please sign in to generate content.",
+        "statusCode": 401,
+        "retryable": false
+      }
+    },
+    {
+      "model": "nano-banana",
+      "path": "google/nano-banana",
+      "status": 401,
+      "success": false,
+      "error": {
+        "code": "UNAUTHORIZED",
+        "message": "Authentication required",
+        "userMessage": "Please sign in to generate content.",
+        "statusCode": 401,
+        "retryable": false
+      }
+    },
+    {
+      "model": "qwen-image-edit",
+      "path": "qwen/qwen-image-edit",
+      "status": 401,
+      "success": false,
+      "error": {
+        "code": "UNAUTHORIZED",
+        "message": "Authentication required",
+        "userMessage": "Please sign in to generate content.",
+        "statusCode": 401,
+        "retryable": false
+      }
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "successful": 0,
+    "failed": 5,
+    "successRate": "0%"
+  }
+}

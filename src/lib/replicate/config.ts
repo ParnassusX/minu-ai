@@ -113,6 +113,36 @@ export const MODEL_REGISTRY = {
       }
     }
   },
+  imageEditing: {
+    'nano-banana': {
+      available: true,
+      replicateModel: 'google/nano-banana',
+      category: 'image-editing',
+      pricing: { costPerImage: 0.04 },
+      capabilities: {
+        maxResolution: '2048x2048',
+        features: ['image-editing', 'prompt-adherence', 'high-quality', 'multi-input']
+      },
+      performance: {
+        averageTime: 8,
+        quality: 'high'
+      }
+    },
+    'qwen-image-edit': {
+      available: true,
+      replicateModel: 'qwen/qwen-image-edit',
+      category: 'image-editing',
+      pricing: { costPerImage: 0.025 },
+      capabilities: {
+        maxResolution: '2048x2048',
+        features: ['image-editing', 'fast-processing', 'high-quality']
+      },
+      performance: {
+        averageTime: 3,
+        quality: 'high'
+      }
+    }
+  },
   videoGeneration: {
     'seedance-1-lite': {
       available: true,
@@ -192,7 +222,8 @@ export const MODEL_REGISTRY = {
 export const RECOMMENDED_MODELS = {
   images: ['flux-dev', 'flux-schnell', 'seedream-3'],
   video: ['seedance-1-pro', 'minimax-video-01'],
-  enhance: ['real-esrgan', 'esrgan']
+  enhance: ['real-esrgan', 'esrgan'],
+  editing: ['nano-banana', 'qwen-image-edit']
 }
 
 export const DEFAULT_GENERATION_PARAMS = {
@@ -201,7 +232,7 @@ export const DEFAULT_GENERATION_PARAMS = {
     aspect_ratio: '1:1',
     guidance_scale: 3.5,
     num_inference_steps: 28,
-    output_format: 'webp',
+    output_format: 'jpg',
     output_quality: 80
   },
   video: {

@@ -20,7 +20,8 @@ export default function LoginPage() {
   const { signIn } = useAuth()
   const router = useRouter()
 
-  // Production mode - no development bypasses
+  // Check if demo mode is enabled for development bypasses
+  const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true'
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -127,6 +128,33 @@ export default function LoginPage() {
             </div>
           </div>
 
+          {/* Development Bypass Section */}
+          {isDemoMode && (
+            <div data-testid="dev-bypass" className="mt-6 p-4 border border-yellow-200 bg-yellow-50 rounded-lg">
+              <div className="text-center mb-3">
+                <h3 className="text-sm font-medium text-yellow-800">Development Mode</h3>
+                <p className="text-xs text-yellow-600 mt-1">Testing bypasses available</p>
+              </div>
+              <div className="space-y-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full text-sm"
+                  onClick={() => router.push('/generator')}
+                >
+                  Generator V2 (Dev Mode)
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full text-sm"
+                  onClick={() => router.push('/dashboard')}
+                >
+                  Development Portal
+                </Button>
+              </div>
+            </div>
+          )}
 
         </CardContent>
       </Card>

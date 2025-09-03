@@ -1,25 +1,39 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { UnifiedStorageService } from '@/lib/storage/unifiedStorage'
 import { createClient } from '@/lib/supabase/server'
+import crypto from 'crypto'
 
-// Simple signature verification (optional): Replicate supports webhook secret
-function verifySignature(request: NextRequest): boolean {
-  const expected = process.env.REPLICATE_WEBHOOK_SECRET
-  if (!expected) return true // allow if not configured
-  const received = request.headers.get('replicate-signature') || request.headers.get('x-replicate-signature')
-  return !!received && received === expected
+// Verify HMAC-SHA256 signature from Replicate using raw body
+async function verifySignature(request: NextRequest, rawBody: ArrayBuffer): Promise<boolean> {
+  const secret = process.env.REPLICATE_WEBHOOK_SECRET
+  if (!secret) {
+    // In production, require a secret; in development, allow missing for convenience
+    return process.env.NODE_ENV !== 'production'
+  }
+
+  const signature = request.headers.get('x-replicate-signature') || request.headers.get('replicate-signature')
+  if (!signature) return false
+
+  const hmac = crypto.createHmac('sha256', secret)
+  hmac.update(Buffer.from(rawBody))
+  const digest = hmac.digest('hex')
+  return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(digest))
 }
 
 export async function POST(request: NextRequest) {
   try {
-    if (!verifySignature(request)) {
+    // Read raw body first for signature verification
+    const raw = await request.arrayBuffer()
+    const isValid = await verifySignature(request, raw)
+    if (!isValid) {
       return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
     }
 
-    const payload = await request.json()
+    const payload = JSON.parse(Buffer.from(raw).toString('utf-8'))
     // Replicate webhook payloads include id, status, output, input, model, etc.
     const { id, status, output, input, model } = payload
 
+    // Minimal log without PII
     console.log('🔔 Replicate webhook received:', { id, status, hasOutput: !!output })
 
     if (status !== 'succeeded' || !output) {
@@ -39,7 +53,8 @@ export async function POST(request: NextRequest) {
       const url = urls[i]
       const isVideo = (input?.output_format || '').toLowerCase() === 'mp4' || input?.mode === 'video'
 
-      const stored = await unifiedStorage.storeFromUrl(url, {
+      // First try direct URL storage (fast path)
+      let stored = await unifiedStorage.storeFromUrl(url, {
         originalUrl: url,
         filename: `${id}_${i}.${isVideo ? 'mp4' : 'jpg'}`,
         mimeType: isVideo ? 'video/mp4' : 'image/jpeg',
@@ -48,6 +63,31 @@ export async function POST(request: NextRequest) {
         prompt: input?.prompt || '',
         userId: userId || undefined
       })
+
+      // If replicate.delivery requires auth or direct fetch failed, download with Replicate token and store buffer
+      const needsAuthFetch = !stored.success || url.includes('replicate.delivery')
+      if (needsAuthFetch && process.env.REPLICATE_API_TOKEN) {
+        try {
+          const res = await fetch(url, {
+            headers: { Authorization: `Bearer ${process.env.REPLICATE_API_TOKEN}` }
+          })
+          if (res.ok) {
+            const arrayBuf = await res.arrayBuffer()
+            const buffer = Buffer.from(arrayBuf)
+            stored = await unifiedStorage.storeBuffer(buffer, {
+              originalUrl: url,
+              filename: `${id}_${i}.${isVideo ? 'mp4' : 'jpg'}`,
+              mimeType: isVideo ? 'video/mp4' : 'image/jpeg',
+              generatedAt: new Date().toISOString(),
+              modelUsed: model || input?.model || 'unknown',
+              prompt: input?.prompt || '',
+              userId: userId || undefined
+            })
+          }
+        } catch (e) {
+          console.warn('⚠️ Authenticated fetch from replicate.delivery failed:', e)
+        }
+      }
 
       if (!stored.success || !stored.data) {
         console.warn('⚠️ Webhook storage failed for URL:', url)

@@ -9,7 +9,7 @@ import { useState, useCallback, useEffect, useRef } from 'react'
 import { GeneratorState, GeneratorSettings, UseGeneratorReturn, GeneratorActions, GeneratorUtils, UploadedImage } from '../types/generator'
 import { GenerationMode, ModelSchema } from '../types/models'
 import { GenerationResult } from '../types/api'
-import { getModelsByMode, getPriorityModels, getModelById, validateModelSelection, validateModelParameters, getDefaultParameters, estimateGenerationCost } from '../lib/models'
+import { getModelsByMode, getModelById, validateModelSelection, validateModelParameters, getDefaultParameters, estimateGenerationCost } from '../lib/models'
 import { storage, createGeneratorError, validatePrompt, validateImageFile } from '../lib/utils'
 import { DEFAULT_GENERATOR_SETTINGS } from '../lib/config'
 
@@ -24,7 +24,8 @@ export const useGenerator = (initialMode: GenerationMode = 'images'): UseGenerat
   // Core state
   const [mode, setMode] = useState<GenerationMode>(initialMode)
   // Precompute initial models to avoid a render where no model is selected
-  const initialModels = initialMode === 'images' ? getPriorityModels() : getModelsByMode(initialMode)
+  // Show ALL active models for the mode (priority models are first in ALL_MODELS order)
+  const initialModels = getModelsByMode(initialMode)
   const initialSelectedModel = initialModels.length > 0 ? initialModels[0] : null
   const [selectedModel, setSelectedModel] = useState<ModelSchema | null>(initialSelectedModel)
   const [availableModels, setAvailableModels] = useState<ModelSchema[]>(initialModels)
@@ -76,7 +77,7 @@ export const useGenerator = (initialMode: GenerationMode = 'images'): UseGenerat
   useEffect(() => {
     console.log('🎨 useGenerator: Loading models for mode:', mode)
 
-    const models = mode === 'images' ? getPriorityModels() : getModelsByMode(mode)
+    const models = getModelsByMode(mode)
     console.log('🎨 useGenerator: Models loaded:', {
       mode,
       modelsCount: models.length,
@@ -264,6 +265,26 @@ export const useGenerator = (initialMode: GenerationMode = 'images'): UseGenerat
       abortControllerRef.current = new AbortController()
       
       try {
+        // Additional validation to prevent invalid image URLs from being sent
+        const fileParams = (selectedModel.parameters || []).filter(p => p.type === 'file').map(p => p.name)
+        for (const paramName of fileParams) {
+          const val = (parameters as any)[paramName]
+          const checkUrl = (u: any) => {
+            if (typeof u !== 'string') return
+            if (u.startsWith('blob:')) {
+              throw new Error('Image upload is not complete. Please re-upload your image and try again.')
+            }
+            if (!u.startsWith('http')) {
+              throw new Error('Invalid image URL provided. Please re-upload your image and try again.')
+            }
+          }
+          if (Array.isArray(val)) {
+            val.forEach(checkUrl)
+          } else if (val) {
+            checkUrl(val)
+          }
+        }
+
         // Prepare request data
         const requestData = {
           model: selectedModel.replicateModel,

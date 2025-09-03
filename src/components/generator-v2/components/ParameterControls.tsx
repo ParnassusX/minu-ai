@@ -39,19 +39,40 @@ export const ParameterControls: React.FC<ParameterControlsProps> = ({
   onImageRemove
 }) => {
   const parameterGroups = getParametersByGroup(model)
-  
+
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>, paramName: string) => {
-    const file = event.target.files?.[0]
-    if (file) {
-      try {
+    const fileList = event.target.files
+    if (!fileList || fileList.length === 0) {
+      event.target.value = ''
+      return
+    }
+
+    const supportsMultiple = model.capabilities.supportsMultipleImages && (paramName === 'image_input' || paramName === 'images')
+
+    try {
+      if (supportsMultiple) {
+        const max = model.capabilities.maxImages || 3
+        const current: string[] = Array.isArray(parameters[paramName]) ? parameters[paramName] : []
+        const newUrls: string[] = []
+        for (let i = 0; i < fileList.length && (current.length + newUrls.length) < max; i++) {
+          const f = fileList[i]!
+          const uploaded = await onImageUpload(f)
+          newUrls.push(uploaded.url)
+        }
+        const combined = [...current, ...newUrls].slice(0, max)
+        onParameterChange(paramName, combined)
+        console.log('✅ Images uploaded and parameter array set:', { paramName, urls: combined })
+      } else {
+        const file = fileList[0]!
         const uploadedImage = await onImageUpload(file)
         // Set the parameter to the uploaded image URL
         onParameterChange(paramName, uploadedImage.url)
         console.log('✅ Image uploaded and parameter set:', { paramName, url: uploadedImage.url })
-      } catch (error) {
-        console.error('Upload failed:', error)
       }
+    } catch (error) {
+      console.error('Upload failed:', error)
     }
+
     // Reset the input
     event.target.value = ''
   }
@@ -137,6 +158,7 @@ export const ParameterControls: React.FC<ParameterControlsProps> = ({
                 id={`file-${param.name}`}
                 type="file"
                 accept="image/*"
+                multiple={model.capabilities.supportsMultipleImages && (param.name === 'image_input' || param.name === 'images')}
                 onChange={(e) => handleFileUpload(e, param.name)}
                 className="hidden"
               />

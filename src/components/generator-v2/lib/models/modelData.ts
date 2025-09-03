@@ -72,33 +72,33 @@ const fluxSchnellModel: ModelSchema = {
   updatedAt: '2024-01-01T00:00:00Z'
 }
 
-// FLUX.1.1 Pro Ultra - High Quality Images (Priority Model #2)
+// FLUX.1.1 Pro - High Quality Images (Priority Model #2)
 const fluxUltraModel: ModelSchema = {
   id: 'flux-ultra',
-  name: 'FLUX.1.1 Pro Ultra',
-  description: 'Ultra-high quality image generation with advanced features and superior detail',
+  name: 'FLUX.1.1 Pro',
+  description: 'High quality image generation with advanced features and superior detail',
   owner: 'black-forest-labs',
-  replicateModel: 'black-forest-labs/flux-1.1-pro-ultra',
+  replicateModel: 'black-forest-labs/flux-1.1-pro',
   category: 'image-generation',
   supportedModes: ['images'],
   provider: 'Black Forest Labs',
   version: 'latest',
-  
+
   parameters: [
     createParameter('prompt', 'string', true, '', [], 'Text description of what you want to generate', 0),
-    createParameter('aspect_ratio', 'select', false, '1:1', 
-      ['1:1', '16:9', '9:16', '4:3', '3:4', '3:2', '2:3', '4:5', '5:4', '21:9', '9:21', '2:1', '1:2'], 
+    createParameter('aspect_ratio', 'select', false, '1:1',
+      ['1:1', '16:9', '9:16', '4:3', '3:4', '3:2', '2:3', '4:5', '5:4', '21:9', '9:21', '2:1', '1:2'],
       'Aspect ratio of the generated image', 1),
     createParameter('output_format', 'select', false, 'jpg', ['jpg', 'png'], 'Output format for the generated image', 2),
     createParameter('safety_tolerance', 'number', false, 2, [], 'Safety tolerance (0-6, higher is more permissive)', 3),
     createParameter('seed', 'number', false, undefined, [], 'Random seed for reproducible generation', 4)
   ],
-  
+
   pricing: {
     costPerImage: 0.075,
     currency: 'USD'
   },
-  
+
   capabilities: {
     supportsImageInput: false,
     supportsMultipleImages: false,
@@ -107,13 +107,13 @@ const fluxUltraModel: ModelSchema = {
     maxResolution: '2048x2048',
     supportedAspectRatios: ['1:1', '16:9', '9:16', '4:3', '3:4', '3:2', '2:3', '4:5', '5:4', '21:9', '9:21', '2:1', '1:2']
   },
-  
+
   performance: {
     speed: 'medium',
     averageTime: 8.0,
     reliability: 0.98
   },
-  
+
   isActive: true,
   isPriority: true,
   tags: ['high-quality', 'image-generation', 'flux', 'premium'],
@@ -228,8 +228,8 @@ const seedream3Model: ModelSchema = {
   id: 'seedream-3',
   name: 'Seedream 3',
   description: 'High-quality alternative image generation model with unique artistic style',
-  owner: 'seedream',
-  replicateModel: 'seedream/seedream-3',
+  owner: 'bytedance',
+  replicateModel: 'bytedance/seedream-3',
   category: 'image-generation',
   supportedModes: ['images'],
   provider: 'Seedream',
@@ -369,14 +369,14 @@ const seedance1ProModel: ModelSchema = {
     reliability: 0.95
   },
 
-  isActive: true,
+  isActive: false,
   isPriority: false,
   tags: ['video-generation', 'image-to-video', 'bytedance', '1080p', 'professional'],
   createdAt: '2024-01-01T00:00:00Z',
   updatedAt: '2024-01-01T00:00:00Z'
 }
 
-// Google Gemini 2.5 Flash Image Generation - NEW MODEL
+// Google Gemini 2.5 Flash Image Generation - NEW MODEL (disabled pending validation)
 const gemini25FlashImageModel: ModelSchema = {
   id: 'gemini-2.5-flash-image',
   name: 'Gemini 2.5 Flash Image',
@@ -414,7 +414,7 @@ const gemini25FlashImageModel: ModelSchema = {
   },
 
   tags: ['fast', 'google', 'gemini', 'text-to-image', 'new'],
-  isActive: true,
+  isActive: false,
   isPriority: false,
   createdAt: '2025-08-26T00:00:00Z',
   updatedAt: '2025-08-26T00:00:00Z'
@@ -470,8 +470,8 @@ const realESRGANModel: ModelSchema = {
   id: 'real-esrgan',
   name: 'Real-ESRGAN',
   description: 'Fast and effective AI upscaler for enhancing image quality and fixing artifacts',
-  owner: 'nightmareai',
-  replicateModel: 'nightmareai/real-esrgan',
+  owner: 'xinntao',
+  replicateModel: 'xinntao/realesrgan',
   category: 'image-enhancement',
   supportedModes: ['enhance'],
   provider: 'Nightmare AI',
@@ -622,6 +622,62 @@ const ultimateSDUpscaleModel: ModelSchema = {
   updatedAt: '2025-08-26T00:00:00Z'
 }
 
+// Removed duplicate googleNanoBananaModel (consolidated under nanoBananaModel)
+
+// Qwen Image Edit - Advanced Image Editing Model
+const qwenImageEditModel: ModelSchema = {
+  id: 'qwen-image-edit',
+  name: 'Qwen Image Edit',
+  description: 'Advanced image editing model with 3-second processing and high-quality results',
+  owner: 'qwen',
+  replicateModel: 'qwen/qwen-image-edit',
+  category: 'image-editing',
+  supportedModes: ['images'],
+  provider: 'Qwen',
+  version: 'latest',
+
+  pricing: {
+    costPerImage: 0.025,
+    currency: 'USD'
+  },
+
+  capabilities: {
+    supportsImageInput: true,
+    supportsMultipleImages: false,
+    maxImages: 1,
+    supportedFormats: ['jpg', 'png'],
+    maxResolution: '2048x2048',
+    supportedAspectRatios: ['1:1', '16:9', '9:16', '4:3', '3:2']
+  },
+
+  parameters: [
+    createParameter('prompt', 'string', true, '', [], 'Text description of desired edits', 0),
+    createParameter('image', 'file', true, undefined, [], 'Input image (HTTPS URL) to edit', 1),
+
+    createParameter('output_format', 'select', false, 'jpg', ['jpg', 'png', 'webp'], 'Output image format', 2),
+    createParameter('seed', 'number', false, undefined, [], 'Random seed for reproducibility', 3),
+    createParameter('go_fast', 'boolean', false, false, [], 'Faster processing mode', 4),
+    createParameter('aspect_ratio', 'select', false, '1:1', ['1:1', '16:9', '9:16', '4:3', '3:2'], 'Aspect ratio for the output image', 5),
+    createParameter('output_quality', 'number', false, 90, [], 'Image quality (1-100)', 6),
+    createParameter('disable_safety_checker', 'boolean', false, false, [], 'Disable safety filtering', 7),
+
+    createParameter('guidance_scale', 'number', false, 7.0, [], 'Guidance scale', 8),
+    createParameter('num_inference_steps', 'number', false, 15, [], 'Number of inference steps', 9)
+  ],
+
+  performance: {
+    speed: 'fast',
+    averageTime: 3.0,
+    reliability: 0.94
+  },
+
+  isActive: true,
+  isPriority: false,
+  tags: ['image-editing', 'qwen', 'fast', 'high-quality'],
+  createdAt: '2024-01-01T00:00:00Z',
+  updatedAt: '2024-01-01T00:00:00Z'
+}
+
 // New enhancement models
 export const ENHANCEMENT_MODELS: ModelSchema[] = [
   realESRGANModel,
@@ -632,10 +688,11 @@ export const ENHANCEMENT_MODELS: ModelSchema[] = [
 // New generation models
 export const NEW_GENERATION_MODELS: ModelSchema[] = [
   gemini25FlashImageModel,
-  nanoBananaModel
+  nanoBananaModel,
+  qwenImageEditModel
 ]
 
-// Export all models array (12 total models)
+// Export all models array (14 total models)
 export const ALL_MODELS: ModelSchema[] = [
   ...PRIORITY_MODELS,
   seedance1LiteModel,
@@ -656,6 +713,7 @@ export {
   // New models
   gemini25FlashImageModel,
   nanoBananaModel,
+  qwenImageEditModel,
   realESRGANModel,
   swinIRModel,
   ultimateSDUpscaleModel

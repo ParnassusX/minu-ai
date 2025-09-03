@@ -3,7 +3,8 @@ const nextConfig = {
   // Fix workspace root detection issue
   outputFileTracingRoot: __dirname,
   typescript: {
-    ignoreBuildErrors: true,
+    // Fail builds on TypeScript errors in production; allow flexibility in development
+    ignoreBuildErrors: process.env.NODE_ENV !== 'production',
   },
   experimental: {
     optimizePackageImports: ['lucide-react'],
@@ -28,7 +29,8 @@ const nextConfig = {
   images: {
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 60,
-    dangerouslyAllowSVG: true,
+    // Disable SVG in production for security; allow in development only
+    dangerouslyAllowSVG: process.env.NODE_ENV !== 'production',
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     domains: ['localhost', 'supabase.co', 'replicate.delivery', 'res.cloudinary.com'],
     remotePatterns: [
@@ -92,7 +94,8 @@ const nextConfig = {
         headers: [
           {
             key: 'Cache-Control',
-            value: 'public, max-age=300, stale-while-revalidate=60',
+            // Do not publicly cache API responses; many endpoints are authenticated/user-specific
+            value: 'private, no-store',
           },
         ],
       },

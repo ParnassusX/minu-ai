@@ -34,6 +34,6 @@ export const REAL_MODEL_DATA = [
   {
     id: 'seedream-3',
     name: 'Seedream 3.1',
-    replicateModel: 'seedream/seedream-3'
+    replicateModel: 'bytedance/seedream-3'
   }
 ]

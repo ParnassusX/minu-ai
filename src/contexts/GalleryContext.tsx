@@ -32,7 +32,10 @@ interface GalleryContextType {
   images: GalleryImage[]
   loading: boolean
   error: string | null
-  refreshGallery: () => Promise<void>
+  currentPage: number
+  hasMore: boolean
+  refreshGallery: (resetPagination?: boolean) => Promise<void>
+  loadMore: () => Promise<void>
   addImage: (image: GalleryImage) => void
   updateImage: (imageId: string, updates: Partial<GalleryImage>) => void
   removeImage: (imageId: string) => void
@@ -49,14 +52,17 @@ export function GalleryProvider({ children }: GalleryProviderProps) {
   const [images, setImages] = useState<GalleryImage[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [hasMore, setHasMore] = useState(true)
 
-  const refreshGallery = useCallback(async () => {
+  const refreshGallery = useCallback(async (resetPagination = true) => {
     try {
       setLoading(true)
       setError(null)
-      
-      const response = await fetch('/api/gallery?page=1&limit=50')
-      
+
+      const pageToLoad = resetPagination ? 1 : currentPage
+      const response = await fetch(`/api/gallery?page=${pageToLoad}&limit=50`)
+
       if (!response.ok) {
         if (response.status === 401) {
           throw new Error('Authentication required. Please log in to view your gallery.')
@@ -65,7 +71,16 @@ export function GalleryProvider({ children }: GalleryProviderProps) {
       }
 
       const data = await response.json()
-      setImages(data.images || [])
+
+      if (resetPagination) {
+        setImages(data.images || [])
+        setCurrentPage(1)
+        setHasMore(data.pagination?.hasMore || false)
+      } else {
+        // Append new images for infinite scroll
+        setImages(prev => [...prev, ...(data.images || [])])
+        setHasMore(data.pagination?.hasMore || false)
+      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load gallery'
       setError(errorMessage)
@@ -73,7 +88,32 @@ export function GalleryProvider({ children }: GalleryProviderProps) {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [currentPage])
+
+  const loadMore = useCallback(async () => {
+    if (loading || !hasMore) return
+
+    try {
+      setLoading(true)
+      const nextPage = currentPage + 1
+      const response = await fetch(`/api/gallery?page=${nextPage}&limit=50`)
+
+      if (!response.ok) {
+        throw new Error(`Failed to load more images: ${response.status}`)
+      }
+
+      const data = await response.json()
+      setImages(prev => [...prev, ...(data.images || [])])
+      setCurrentPage(nextPage)
+      setHasMore(data.pagination?.hasMore || false)
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load more images'
+      setError(errorMessage)
+      console.error('Load more error:', err)
+    } finally {
+      setLoading(false)
+    }
+  }, [loading, hasMore, currentPage])
 
   const addImage = useCallback((image: GalleryImage) => {
     setImages(prev => [image, ...prev])
@@ -97,7 +137,10 @@ export function GalleryProvider({ children }: GalleryProviderProps) {
     images,
     loading,
     error,
+    currentPage,
+    hasMore,
     refreshGallery,
+    loadMore,
     addImage,
     updateImage,
     removeImage,
