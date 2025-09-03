@@ -4,7 +4,7 @@
  */
 
 export const REPLICATE_CONFIG = {
-  apiToken: process.env.NEXT_PUBLIC_REPLICATE_API_TOKEN || '',
+  apiToken: process.env.REPLICATE_API_TOKEN || '',
   webhookUrl: process.env.REPLICATE_WEBHOOK_URL || '',
   baseUrl: 'https://api.replicate.com/v1',
   timeout: 60000, // 60 seconds
@@ -72,12 +72,12 @@ export const MODEL_REGISTRY = {
     },
     'flux-kontext-pro': {
       available: true,
-      replicateModel: 'fofr/flux-kontext-pro',
+      replicateModel: 'black-forest-labs/flux-kontext-pro',
       category: 'image-generation',
       pricing: { costPerImage: 0.055 },
       capabilities: {
         maxResolution: '1024x1024',
-        features: ['text-to-image', 'context-aware', 'multi-image']
+        features: ['text-to-image', 'context-aware', 'image-input', 'aspect-ratio-control']
       },
       performance: {
         averageTime: 18,
@@ -86,12 +86,12 @@ export const MODEL_REGISTRY = {
     },
     'flux-kontext-max': {
       available: true,
-      replicateModel: 'fofr/flux-kontext-max',
+      replicateModel: 'black-forest-labs/flux-kontext-max',
       category: 'image-generation',
       pricing: { costPerImage: 0.055 },
       capabilities: {
         maxResolution: '1024x1024',
-        features: ['text-to-image', 'context-aware', 'multi-image', 'enhanced']
+        features: ['text-to-image', 'context-aware', 'image-input', 'aspect-ratio-control', 'enhanced']
       },
       performance: {
         averageTime: 25,
@@ -102,13 +102,13 @@ export const MODEL_REGISTRY = {
       available: true,
       replicateModel: 'bytedance/seedream-3',
       category: 'image-generation',
-      pricing: { costPerImage: 0.035 },
+      pricing: { costPerImage: 0.03 },
       capabilities: {
-        maxResolution: '1024x1024',
-        features: ['text-to-image', 'artistic-style']
+        maxResolution: '2048x2048', // Native 2K resolution
+        features: ['text-to-image', 'high-resolution', 'bilingual', 'text-layout', 'fast-generation']
       },
       performance: {
-        averageTime: 12,
+        averageTime: 3, // 3 seconds for 1K image
         quality: 'high'
       }
     }
@@ -207,6 +207,9 @@ export const DEFAULT_GENERATION_PARAMS = {
   video: {
     duration: 5,
     fps: 24,
+    resolution: '720p',
+    aspect_ratio: '16:9',
+    camera_fixed: false,
     motion_strength: 0.8,
     camera_movement: 'auto'
   },
@@ -259,8 +262,8 @@ export const FLUX_MODELS = MODEL_REGISTRY.imageGeneration
 
 export const MODEL_CATEGORIES = {
   Popular: ['flux-dev', 'flux-schnell', 'seedream-3', 'seedance-1-pro'],
-  Fast: ['flux-schnell', 'seedance-1-lite'],
-  HighQuality: ['flux-pro', 'flux-kontext-max', 'seedance-1-pro'],
+  Fast: ['flux-schnell', 'seedream-3', 'seedance-1-lite'], // Added seedream-3 (3 seconds)
+  HighQuality: ['flux-pro', 'flux-kontext-max', 'seedance-1-pro', 'seedream-3'], // Added seedream-3 (2K native)
   Affordable: ['flux-schnell', 'seedream-3', 'real-esrgan'],
   Professional: ['flux-pro', 'flux-kontext-pro', 'flux-kontext-max']
 }
@@ -269,4 +272,28 @@ export const PRICING_TIERS = {
   basic: { costPerImage: 0.003 },
   standard: { costPerImage: 0.035 },
   premium: { costPerImage: 0.055 }
+}
+
+// Speed optimization: Auto-select fastest models for quick generation
+export const SPEED_OPTIMIZED_MODELS = {
+  fastest: 'flux-schnell',      // 2 seconds, $0.003
+  fastHighQuality: 'seedream-3', // 3 seconds, $0.03, 2K native
+  balanced: 'flux-dev',         // 15 seconds, $0.055
+  premium: 'flux-kontext-max'   // 25 seconds, $0.095
+}
+
+// Auto-selection logic for speed vs quality
+export function selectOptimalModel(priority: 'speed' | 'quality' | 'balanced' | 'cost'): string {
+  switch (priority) {
+    case 'speed':
+      return SPEED_OPTIMIZED_MODELS.fastest
+    case 'quality':
+      return SPEED_OPTIMIZED_MODELS.premium
+    case 'balanced':
+      return SPEED_OPTIMIZED_MODELS.fastHighQuality
+    case 'cost':
+      return SPEED_OPTIMIZED_MODELS.fastest
+    default:
+      return SPEED_OPTIMIZED_MODELS.balanced
+  }
 }

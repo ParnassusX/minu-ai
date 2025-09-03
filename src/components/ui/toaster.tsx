@@ -9,7 +9,7 @@ import {
   ToastViewport,
 } from '@/components/ui/toast'
 import { StatusIndicator, ProgressRing } from '@/components/ui/professional-toast'
-import { useToast } from '@/hooks/useToast'
+import { useToast } from '@/lib/hooks/useToast'
 import { CheckCircle, XCircle, AlertTriangle, Info, Loader2 } from 'lucide-react'
 
 export function Toaster() {

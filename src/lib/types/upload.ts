@@ -71,6 +71,17 @@ export type UploadStore = UploadState & UploadActions
 
 // Default upload configurations for different modes
 export const DEFAULT_UPLOAD_CONFIGS: Record<string, UploadConfig> = {
+  images: {
+    maxFiles: 1,
+    maxFileSize: 10 * 1024 * 1024, // 10MB
+    acceptedTypes: ['image/jpeg', 'image/png', 'image/webp'],
+    acceptedExtensions: ['.jpg', '.jpeg', '.png', '.webp'],
+    requiresDimensions: true,
+    minDimensions: { width: 256, height: 256 },
+    maxDimensions: { width: 4096, height: 4096 },
+    supportsMask: false,
+    supportsMultiple: false
+  },
   video: {
     maxFiles: 1,
     maxFileSize: 10 * 1024 * 1024, // 10MB

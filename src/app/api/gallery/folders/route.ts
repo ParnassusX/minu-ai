@@ -1,20 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
-
-// Helper function to get authenticated user (secure)
-async function getAuthenticatedUser() {
-  const supabase = createClient()
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
-
-  // SECURITY: Removed development mode authentication bypass
-  // All environments now require proper authentication
-  if (authError || !user) {
-    return { user: null, error: 'Unauthorized' }
-  }
-
-  return { user, error: null }
-}
+import { getAuthenticatedUser } from '@/lib/auth/server'
 
 export async function GET() {
   try {

@@ -4,8 +4,9 @@ import { getAuthenticatedUser } from '@/lib/auth/server'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     // Check authentication
     const { user, error: authError } = await getAuthenticatedUser()
@@ -15,8 +16,6 @@ export async function GET(
         { status: 401 }
       )
     }
-
-    const { id } = params
 
     // Fetch specific template from database
     const supabase = createClient()
@@ -66,8 +65,9 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     // Check authentication
     const { user, error: authError } = await getAuthenticatedUser()
@@ -78,7 +78,7 @@ export async function PATCH(
       )
     }
 
-    const { id } = params
+    const { id } = await params
     const body = await request.json()
 
     // Update template in database
@@ -117,7 +117,7 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Check authentication
@@ -129,7 +129,7 @@ export async function DELETE(
       )
     }
 
-    const { id } = params
+    const { id } = await params
 
     // Delete template from database
     const supabase = createClient()

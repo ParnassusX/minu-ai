@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth/AuthProvider'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Sparkles, Palette, Zap, Shield } from 'lucide-react'
+import { Sparkles, Palette, Zap, Shield, ArrowRight } from 'lucide-react'
+import Link from 'next/link'
 
 export default function HomePage() {
   const { user, loading } = useAuth()
@@ -42,21 +43,24 @@ export default function HomePage() {
             Create, customize, and collaborate on AI-generated images.
           </p>
           <div className="flex gap-4 justify-center">
-            <Button 
-              size="lg" 
-              onClick={() => router.push('/auth/signup')}
-              className="px-8 py-3"
-            >
-              Get Started
-            </Button>
-            <Button 
-              variant="outline" 
-              size="lg"
-              onClick={() => router.push('/auth/login')}
-              className="px-8 py-3"
-            >
-              Sign In
-            </Button>
+            <Link href="/auth/signup">
+              <Button
+                size="lg"
+                className="px-8 py-3"
+              >
+                Get Started
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+            <Link href="/auth/login">
+              <Button
+                variant="outline"
+                size="lg"
+                className="px-8 py-3"
+              >
+                Sign In
+              </Button>
+            </Link>
           </div>
         </div>
 

@@ -81,7 +81,25 @@ export async function generateContent(
       if (!files || files.length === 0) {
         throw new APIClientError('An image is required for enhance mode', 'MISSING_FILES')
       }
-      return apiStore.enhanceImage(request)
+      // Use dedicated enhancement endpoint
+      return fetch('/api/enhance', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: request.model,
+          mode: 'enhance',
+          image: files[0], // First uploaded image
+          parameters: request.settings
+        })
+      }).then(async (response) => {
+        if (!response.ok) {
+          const error = await response.json()
+          throw new APIClientError(error.error || 'Enhancement failed', 'ENHANCEMENT_FAILED')
+        }
+        return response.json()
+      })
 
     default:
       throw new APIClientError(`Unsupported mode: ${mode}`, 'INVALID_MODE')

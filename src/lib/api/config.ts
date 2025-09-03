@@ -5,7 +5,7 @@
 
 // API Keys (environment variables only - no hardcoded fallbacks for security)
 export const API_KEYS = {
-  REPLICATE: process.env.NEXT_PUBLIC_REPLICATE_API_TOKEN || process.env.REPLICATE_API_TOKEN,
+  REPLICATE: process.env.REPLICATE_API_TOKEN,
   GEMINI: process.env.GEMINI_API_KEY,
   CLOUDINARY: process.env.CLOUDINARY_API_KEY
 } as const

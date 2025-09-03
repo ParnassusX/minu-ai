@@ -1,48 +1,45 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getAuthenticatedUser } from '@/lib/auth/server';
+import { NextRequest, NextResponse } from 'next/server'
+import { getAuthenticatedUser } from '@/lib/auth/server'
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
-    // Authenticate user first
-    const { user } = await getAuthenticatedUser();
-    if (!user) {
+    // Get authenticated user
+    const { user, error } = await getAuthenticatedUser()
+    if (error || !user) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
-      );
+      )
     }
 
     const { searchParams } = new URL(request.url);
     const action = searchParams.get('action') || 'summary';
 
-    // Simple mock data for now - this is much cleaner
-    const mockData = {
+    // TODO: Implement real cost tracking from database
+    // For now, return empty data structure
+    const emptyData = {
       summary: {
-        totalCost: 2.45,
-        dailySpending: 0.12,
-        monthlySpending: 2.45,
-        byProvider: {
-          flux: 1.20,
-          replicate: 0.85,
-          bytedance: 0.40
-        }
+        totalCost: 0,
+        dailySpending: 0,
+        monthlySpending: 0,
+        byProvider: {}
       },
       records: [],
       limits: {
-        dailyLimit: { current: 0.12, limit: 10.0, exceeded: false },
-        monthlyLimit: { current: 2.45, limit: 100.0, exceeded: false },
+        dailyLimit: { current: 0, limit: 10.0, exceeded: false },
+        monthlyLimit: { current: 0, limit: 100.0, exceeded: false },
         warnings: []
       },
       analytics: {
         dailySpending: [],
         modelBreakdown: [],
-        totalSpent: 2.45
+        totalSpent: 0
       }
     };
 
-    return NextResponse.json(mockData[action as keyof typeof mockData] || mockData.summary);
+    return NextResponse.json(emptyData[action as keyof typeof emptyData] || emptyData.summary);
   } catch (error) {
     console.error('Error in cost tracking API:', error);
     return NextResponse.json(

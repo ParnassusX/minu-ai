@@ -73,6 +73,8 @@ export function DraggableSuggestion({
 
   const handleUse = (e: React.MouseEvent) => {
     e.stopPropagation()
+    console.log('🎯 Suggestion clicked:', suggestion.text) // Debug log
+    toastHelpers.success('Added!', `"${suggestion.text.slice(0, 30)}..." added to prompt`)
     onUse?.(suggestion)
   }
 
@@ -275,12 +277,17 @@ export function DraggableSuggestion({
         </div>
 
         {/* Drag Handle */}
-        <div 
-          className="absolute top-2 right-2 opacity-0 group-hover:opacity-50 transition-opacity cursor-grab active:cursor-grabbing"
+        <div
+          className={cn(
+            "absolute top-2 right-2 transition-all duration-200 cursor-grab active:cursor-grabbing",
+            "opacity-30 group-hover:opacity-80 hover:opacity-100",
+            "p-1 rounded-md hover:bg-white/20 dark:hover:bg-black/20",
+            isDragging && "opacity-100 bg-white/30 dark:bg-black/30"
+          )}
           {...attributes}
           {...listeners}
         >
-          <GripVertical className="h-4 w-4 text-gray-600" />
+          <GripVertical className="h-4 w-4 text-gray-700 dark:text-gray-300" />
         </div>
 
         {/* Shadow overlay for depth */}

@@ -75,16 +75,16 @@ describe('Dynamic Parameter Controls', () => {
     })
   })
 
-  describe('Integration with CleanGeneratorInterface', () => {
+  describe('Integration with Generator V2', () => {
     it('should provide correct parameter structure for UI rendering', () => {
       const modelId = 'flux-schnell'
       const defaults = getModelDefaults(modelId)
       const supportsImage = modelSupportsImageInput(modelId)
-      
-      // Verify the structure matches what CleanGeneratorInterface expects
+
+      // Verify the structure matches what Generator V2 expects
       expect(typeof defaults).toBe('object')
       expect(typeof supportsImage).toBe('boolean')
-      
+
       // For FLUX models specifically
       expect(supportsImage).toBe(false)
       expect(defaults.num_outputs).toBeDefined()

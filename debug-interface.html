@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generator Interface Debug</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .debug-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .error { color: red; }
+        .success { color: green; }
+        .warning { color: orange; }
+        pre { background: #f5f5f5; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Generator Interface Debug Tool</h1>
+    
+    <div class="debug-section">
+        <h2>Test URLs</h2>
+        <p>Click these links to test different generator access methods:</p>
+        <ul>
+            <li><a href="http://localhost:4000/generator" target="_blank">Standard Generator URL</a></li>
+            <li><a href="http://localhost:4000/generator?demo=true" target="_blank">Generator with Demo Parameter</a></li>
+            <li><a href="http://localhost:4000/auth/login" target="_blank">Login Page</a></li>
+            <li><a href="http://localhost:4000/" target="_blank">Home Page</a></li>
+        </ul>
+    </div>
+    
+    <div class="debug-section">
+        <h2>Interface Analysis</h2>
+        <p>For each URL you test, check for these elements:</p>
+        
+        <h3>Expected Generator V2 Elements:</h3>
+        <ul>
+            <li>✅ Header: "Minu.AI Generator V2"</li>
+            <li>✅ Navigation sidebar with Minu.AI branding</li>
+            <li>✅ Mode selector with Images/Video/Enhance tabs</li>
+            <li>✅ Prompt textarea with suggestions and enhance buttons</li>
+            <li>✅ Model selector dropdown</li>
+            <li>✅ Parameter controls section</li>
+            <li>✅ Generate button</li>
+            <li>✅ Data attribute: data-testid="generator-v2"</li>
+        </ul>
+        
+        <h3>Legacy Interface Indicators:</h3>
+        <ul>
+            <li>❌ Header: "Image Generation" (simple)</li>
+            <li>❌ Header: "Create Enhanced Images"</li>
+            <li>❌ Simple mode buttons without proper styling</li>
+            <li>❌ Basic textarea without enhancement features</li>
+            <li>❌ Missing navigation integration</li>
+            <li>❌ Different color scheme or layout</li>
+        </ul>
+    </div>
+    
+    <div class="debug-section">
+        <h2>Browser Console Commands</h2>
+        <p>Open browser developer tools (F12) and run these commands:</p>
+        
+        <h3>Check for Generator V2:</h3>
+        <pre>document.querySelector('[data-testid="generator-v2"]') ? 'Generator V2 Found' : 'Generator V2 NOT Found'</pre>
+        
+        <h3>Check Page Title:</h3>
+        <pre>document.title</pre>
+        
+        <h3>Check Main Heading:</h3>
+        <pre>document.querySelector('h1')?.textContent</pre>
+        
+        <h3>Check All Headings:</h3>
+        <pre>Array.from(document.querySelectorAll('h1, h2, h3')).map(h => h.textContent)</pre>
+        
+        <h3>Check for Navigation:</h3>
+        <pre>document.querySelector('.nav-responsive') ? 'Navigation Found' : 'Navigation NOT Found'</pre>
+        
+        <h3>Check for Mode Selector:</h3>
+        <pre>document.querySelector('[data-testid="mode-selector"]') ? 'Mode Selector Found' : 'Mode Selector NOT Found'</pre>
+        
+        <h3>Check Current URL:</h3>
+        <pre>window.location.href</pre>
+        
+        <h3>Check Environment Variables:</h3>
+        <pre>console.log('NODE_ENV:', process?.env?.NODE_ENV || 'Not available')</pre>
+        
+        <h3>Full Interface Analysis:</h3>
+        <pre>
+{
+  title: document.title,
+  url: window.location.href,
+  mainHeading: document.querySelector('h1')?.textContent,
+  allHeadings: Array.from(document.querySelectorAll('h1, h2, h3')).map(h => h.textContent),
+  hasGeneratorV2: !!document.querySelector('[data-testid="generator-v2"]'),
+  hasNavigation: !!document.querySelector('.nav-responsive'),
+  hasModeSelector: !!document.querySelector('[data-testid="mode-selector"]'),
+  buttonTexts: Array.from(document.querySelectorAll('button')).map(b => b.textContent?.trim()).filter(Boolean),
+  inputCount: document.querySelectorAll('input, textarea, select').length,
+  isLoginPage: window.location.href.includes('/auth/login'),
+  bodyClasses: document.body.className,
+  reactRoot: !!document.querySelector('#__next')
+}
+        </pre>
+    </div>
+    
+    <div class="debug-section">
+        <h2>Troubleshooting Steps</h2>
+        <ol>
+            <li><strong>Clear Browser Cache:</strong> Ctrl+Shift+R (hard reload)</li>
+            <li><strong>Try Incognito Mode:</strong> Open generator in private/incognito window</li>
+            <li><strong>Check Network Tab:</strong> Look for failed requests or redirects</li>
+            <li><strong>Check Console:</strong> Look for JavaScript errors</li>
+            <li><strong>Verify Server:</strong> Ensure development server is running on port 4000</li>
+            <li><strong>Test Different Browsers:</strong> Try Chrome, Firefox, Edge</li>
+            <li><strong>Check Authentication:</strong> Try logging in first, then accessing generator</li>
+        </ol>
+    </div>
+    
+    <div class="debug-section">
+        <h2>Expected vs Actual Results</h2>
+        <p>Document what you see vs what should be there:</p>
+        
+        <h3>Browser Profile 1 Results:</h3>
+        <textarea rows="5" cols="80" placeholder="Paste the results of the Full Interface Analysis command here..."></textarea>
+        
+        <h3>Browser Profile 2 Results:</h3>
+        <textarea rows="5" cols="80" placeholder="Paste the results of the Full Interface Analysis command here..."></textarea>
+        
+        <h3>Differences Identified:</h3>
+        <textarea rows="3" cols="80" placeholder="List any differences between the two browser profiles..."></textarea>
+    </div>
+    
+    <script>
+        // Auto-refresh every 30 seconds to check for server changes
+        let autoRefresh = false;
+        
+        function toggleAutoRefresh() {
+            autoRefresh = !autoRefresh;
+            if (autoRefresh) {
+                console.log('Auto-refresh enabled - checking server every 30 seconds');
+                setInterval(() => {
+                    if (autoRefresh) {
+                        fetch('http://localhost:4000/generator')
+                            .then(response => {
+                                console.log('Server check:', response.status, response.statusText);
+                            })
+                            .catch(error => {
+                                console.log('Server check failed:', error.message);
+                            });
+                    }
+                }, 30000);
+            } else {
+                console.log('Auto-refresh disabled');
+            }
+        }
+        
+        // Add button to toggle auto-refresh
+        const button = document.createElement('button');
+        button.textContent = 'Toggle Auto Server Check';
+        button.onclick = toggleAutoRefresh;
+        button.style.margin = '10px';
+        button.style.padding = '10px';
+        document.body.appendChild(button);
+        
+        console.log('Generator Interface Debug Tool loaded');
+        console.log('Use the commands above to analyze the interface');
+    </script>
+</body>
+</html>

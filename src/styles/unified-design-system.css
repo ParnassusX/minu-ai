@@ -1,8 +1,6 @@
 /* Minu.AI Unified Design System - Production Ready */
 /* Combines design tokens, glassmorphism effects, and component styles */
-
-/* Import core design foundations */
-@import './design-tokens.css';
+/* Note: design-tokens.css is imported in globals.css to avoid circular imports */
 
 /* === UNIFIED COMPONENT SYSTEM === */
 

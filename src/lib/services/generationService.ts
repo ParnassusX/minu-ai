@@ -103,7 +103,7 @@ class GenerationService {
     try {
       const response = await fetch(`${this.baseUrl}/predictions/${predictionId}`, {
         headers: {
-          'Authorization': `Token ${process.env.NEXT_PUBLIC_REPLICATE_API_TOKEN}`,
+          'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
         }
       })
 
@@ -141,36 +141,65 @@ class GenerationService {
 
     for (const [index, outputUrl] of outputs.entries()) {
       try {
-        // Upload to Cloudinary
-        const uploadResponse = await fetch('/api/upload-to-cloudinary', {
+        // Skip if URL is empty or invalid (prediction still processing)
+        if (!outputUrl || typeof outputUrl !== 'string' || outputUrl.trim() === '') {
+          console.warn(`Skipping empty output URL for result ${index}:`, { outputUrl, type: typeof outputUrl })
+          continue
+        }
+
+        // Validate URL format
+        try {
+          new URL(outputUrl)
+        } catch (urlError) {
+          console.warn(`Skipping invalid URL for result ${index}:`, { outputUrl, error: urlError })
+          continue
+        }
+
+        // CRITICAL FIX: Use unified storage endpoint instead of deleted upload-to-cloudinary
+        const requestBody = {
+          url: outputUrl,
+          metadata: {
+            originalUrl: outputUrl,
+            filename: `${result.id}_${index}.jpg`,
+            mimeType: 'image/jpeg',
+            generatedAt: new Date().toISOString(),
+            modelUsed: metadata.model,
+            prompt: metadata.prompt,
+            mode: metadata.mode
+          }
+        }
+
+        console.log('📤 Sending unified storage request:', {
+          url: outputUrl,
+          metadataKeys: Object.keys(requestBody.metadata),
+          requestSize: JSON.stringify(requestBody).length
+        })
+
+        const uploadResponse = await fetch('/api/unified-storage', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            url: outputUrl,
-            folder: 'minu-ai/generations',
-            public_id: `${result.id}_${index}`,
-            context: {
-              model: metadata.model,
-              prompt: metadata.prompt,
-              mode: metadata.mode,
-              created_at: new Date().toISOString()
-            }
-          })
+          body: JSON.stringify(requestBody)
         })
 
         if (!uploadResponse.ok) {
-          console.warn(`Failed to upload result ${index} to Cloudinary`)
+          const errorText = await uploadResponse.text()
+          console.error(`Failed to upload result ${index} to unified storage:`, {
+            status: uploadResponse.status,
+            statusText: uploadResponse.statusText,
+            error: errorText,
+            url: outputUrl
+          })
           continue
         }
 
         const uploadResult = await uploadResponse.json()
-        
+
         storedResults.push({
           id: `${result.id}_${index}`,
           originalUrl: outputUrl,
-          cloudinaryUrl: uploadResult.secure_url,
+          cloudinaryUrl: uploadResult.secure_url || uploadResult.url,
           publicId: uploadResult.public_id,
           metadata: {
             model: metadata.model,
@@ -182,6 +211,23 @@ class GenerationService {
         })
       } catch (error) {
         console.error(`Failed to store result ${index}:`, error)
+
+        // Fallback: Use original Replicate URL if storage fails
+        console.log(`Using fallback storage for result ${index}`)
+        storedResults.push({
+          id: `${result.id}_${index}`,
+          originalUrl: outputUrl,
+          cloudinaryUrl: outputUrl, // Use original URL as fallback
+          publicId: `fallback_${result.id}_${index}`,
+          metadata: {
+            model: metadata.model,
+            prompt: metadata.prompt,
+            parameters: metadata.parameters,
+            mode: metadata.mode,
+            createdAt: new Date().toISOString(),
+            // persistent: false // Mark as non-persistent - removed as not part of metadata type
+          }
+        })
       }
     }
 
@@ -224,10 +270,13 @@ class GenerationService {
 
       // Map from full Replicate model name to legacy model ID
       const modelIdMapping: Record<string, string> = {
-        // FLUX Models
+        // FLUX Models - FIXED: Use correct Black Forest Labs model names
         'black-forest-labs/flux-schnell': 'flux-schnell',
         'black-forest-labs/flux-dev': 'flux-dev',
         'black-forest-labs/flux-1.1-pro': 'flux-pro',
+        'black-forest-labs/flux-kontext-pro': 'flux-kontext-pro',
+        'black-forest-labs/flux-kontext-max': 'flux-kontext-max',
+        // Legacy fofr mappings for backward compatibility
         'fofr/flux-kontext-pro': 'flux-kontext-pro',
         'fofr/flux-kontext-max': 'flux-kontext-max',
 
@@ -251,11 +300,13 @@ class GenerationService {
         inputParameters: Object.keys(input)
       })
 
-      // Use legacy format to get complete workflow with storage
+      // Use new format for proper parameter handling
       const requestBody = {
-        prompt: request.prompt,
-        modelId: legacyModelId,
-        ...input // Spread the prepared input parameters
+        model: request.model.replicateModel,
+        input: {
+          prompt: request.prompt,
+          ...input // Spread the prepared input parameters
+        }
       }
 
       // Call the Next.js API route which handles the complete workflow
@@ -268,8 +319,14 @@ class GenerationService {
       })
 
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || `API error: ${response.status}`)
+        const errorData = await response.json().catch(() => ({}))
+        console.error('🚨 Generation API Error:', {
+          status: response.status,
+          statusText: response.statusText,
+          errorData,
+          url: response.url
+        })
+        throw new Error(errorData.error || errorData.message || `API error: ${response.status} ${response.statusText}`)
       }
 
       const apiResult = await response.json()
@@ -278,8 +335,10 @@ class GenerationService {
         throw new Error(apiResult.error || 'Generation failed')
       }
 
-      // Check if we have images in the response
-      if (!apiResult.images || !Array.isArray(apiResult.images)) {
+      // Check if we have images in the response (handle both new and legacy formats)
+      const images = apiResult.images || apiResult.data
+      if (!images || !Array.isArray(images)) {
+        console.error('API Response format:', apiResult)
         throw new Error('No images returned from API')
       }
 
@@ -287,12 +346,12 @@ class GenerationService {
       const result: GenerationResult = {
         id: `gen-${Date.now()}`,
         status: 'succeeded',
-        output: apiResult.images.map((img: any) => img.url),
+        output: images.map((img: any) => img.url),
         progress: 100
       }
 
       // Transform stored images to StoredResult format
-      const storedResults: StoredResult[] = apiResult.images.map((img: any, index: number) => ({
+      const storedResults: StoredResult[] = images.map((img: any, index: number) => ({
         id: img.id || `result-${index}`,
         originalUrl: img.originalUrl || img.url,
         cloudinaryUrl: img.url,
@@ -403,11 +462,7 @@ class GenerationService {
     }
 
     // Get all model parameters for validation
-    const allModelParams = [
-      ...request.model.parameters.basic,
-      ...request.model.parameters.intermediate,
-      ...request.model.parameters.advanced
-    ]
+    const allModelParams = request.model.parameters || []
 
     // Transform and validate each parameter
     const validatedParams: Record<string, any> = {}
@@ -427,10 +482,33 @@ class GenerationService {
     const modelSpecificParams = transformParametersForModel(request.model.id, validatedParams)
     Object.assign(input, modelSpecificParams)
 
-    // Handle image URLs with model-specific mapping
+    // Handle image URLs with model-specific mapping and validation
     if (request.images && request.images.length > 0) {
-      const imageParams = mapImageParametersForModel(request.model.id, request.images)
-      Object.assign(input, imageParams)
+      // CRITICAL FIX: Validate image URLs before API call
+      const validImages = request.images.filter(url => {
+        try {
+          new URL(url)
+          return url.startsWith('http://') || url.startsWith('https://')
+        } catch {
+          console.warn(`Invalid image URL: ${url}`)
+          return false
+        }
+      })
+
+      if (validImages.length > 0) {
+        const imageParams = mapImageParametersForModel(request.model.id, validImages)
+        Object.assign(input, imageParams)
+
+        // DEBUG: Log image parameter mapping
+        console.log('🖼️ Image Parameter Mapping:', {
+          modelId: request.model.id,
+          originalImages: request.images,
+          validImages,
+          mappedParams: imageParams
+        })
+      } else {
+        console.warn('No valid image URLs provided for image-enabled model')
+      }
     }
 
     return input
@@ -518,7 +596,7 @@ class GenerationService {
       await fetch(`${this.baseUrl}/predictions/${predictionId}/cancel`, {
         method: 'POST',
         headers: {
-          'Authorization': `Token ${process.env.NEXT_PUBLIC_REPLICATE_API_TOKEN}`,
+          'Authorization': `Token ${process.env.REPLICATE_API_TOKEN}`,
         }
       })
     } catch (error) {

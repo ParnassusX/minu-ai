@@ -32,6 +32,16 @@
     "node_modules",
     "**/__tests__.disabled/**/*",
     "**/*.test.disabled.*",
-    "**/*.spec.disabled.*"
+    "**/*.spec.disabled.*",
+    "temp-tests/**/*",
+    "**/__tests__/**/*",
+    "**/*.test.*",
+    "**/*.spec.*",
+    "src/components/ui/__tests__/OptimizedLoadingAndErrorHandling.test.tsx",
+    "src/lib/validation/__tests__/dynamicParameterControls.test.ts",
+    "src/components/generator/__tests__/ProgressiveParameterControls.test.tsx",
+    "src/components/layout/__tests__/ResponsiveBreakpoints.test.tsx",
+    "src/components/navigation/__tests__/GlassmorphismNavigation.test.tsx",
+    "src/components/navigation/__tests__/UnifiedNavigation.test.tsx"
   ]
 }

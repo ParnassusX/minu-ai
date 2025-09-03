@@ -21,77 +21,107 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  // Fix hydration error by ensuring consistent initial state
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
+  const [mounted, setMounted] = useState(false)
   const supabase = createClient()
+  const AUTH_TIMEOUT_MS = 3000
+
+  // Prevent hydration mismatch by only rendering after mount
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
+    const withTimeout = async <T,>(p: Promise<T>, ms: number, label: string): Promise<T> => {
+      return await Promise.race([
+        p,
+        new Promise<T>((_, reject) => setTimeout(() => reject(new Error(`Timeout after ${ms}ms: ${label}`)), ms))
+      ])
+    }
+
     const getSession = async () => {
-      console.log('🔄 AuthProvider: Starting session check...')
       try {
-        console.log('🔄 AuthProvider: Calling supabase.auth.getSession()...')
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+        console.log('🔐 AuthProvider:getSession start')
+        const { data: { session }, error: sessionError } = await withTimeout(
+          supabase.auth.getSession(), AUTH_TIMEOUT_MS, 'supabase.auth.getSession'
+        )
 
         if (sessionError) {
-          console.error('🔄 AuthProvider: Session error:', sessionError)
+          console.error('Auth session error:', sessionError)
           setLoading(false)
           return
         }
 
-        console.log('🔄 AuthProvider: Session result:', session?.user ? 'User found' : 'No user')
         setUser(session?.user ?? null)
 
         if (session?.user) {
-          console.log('🔄 AuthProvider: Fetching profile for user:', session.user.id)
-          const { data: profile, error: profileError } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single()
+          try {
+            const profileQuery = supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', session.user.id)
+              .single()
 
-          if (profileError) {
-            console.error('🔄 AuthProvider: Profile fetch error:', profileError)
-          } else {
-            console.log('🔄 AuthProvider: Profile fetched successfully')
+            const profileResult = await withTimeout(
+              profileQuery as unknown as Promise<any>,
+              AUTH_TIMEOUT_MS,
+              'profiles.fetch'
+            )
+
+            const { data: profile, error: profileError } = profileResult
+
+            if (profileError && profileError.code !== 'PGRST116') {
+              // PGRST116 is "not found" - acceptable for new users without profiles
+              console.error('Profile fetch error:', profileError)
+            } else {
+              setProfile(profile || null)
+            }
+          } catch (pfErr) {
+            console.warn('Profile fetch timed out or failed:', pfErr)
           }
-
-          setProfile(profile)
         }
 
-        console.log('🔄 AuthProvider: Setting loading to false')
         setLoading(false)
       } catch (error) {
-        console.error('🔄 AuthProvider: Unexpected error:', error)
+        console.error('Auth error:', error)
         setLoading(false)
       }
     }
 
-    // Add timeout to prevent infinite loading
-    const timeoutId = setTimeout(() => {
-      console.error('🔄 AuthProvider: Session check timed out after 10 seconds')
-      setLoading(false)
-    }, 10000)
-
-    getSession().finally(() => {
-      clearTimeout(timeoutId)
-    })
+    // Start session fetch with timeout safeguards
+    getSession()
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('🔐 onAuthStateChange:', event)
         setUser(session?.user ?? null)
-        
+
         if (session?.user) {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single()
-          setProfile(profile)
+          try {
+            const profileQuery = supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', session.user.id)
+              .single()
+
+            const profileResult = await withTimeout(
+              profileQuery as unknown as Promise<any>,
+              AUTH_TIMEOUT_MS,
+              'profiles.fetch:onAuthStateChange'
+            )
+
+            const { data: profile } = profileResult
+            setProfile(profile)
+          } catch (pfErr) {
+            console.warn('Profile fetch (onAuthStateChange) timed out or failed:', pfErr)
+          }
         } else {
           setProfile(null)
         }
-        
+
         setLoading(false)
       }
     )
@@ -101,13 +131,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      console.log('🔐 Attempting sign in with:', email)
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password: password.trim(),
       })
-      return { error }
+
+      if (error) {
+        console.error('🔐 Sign in error:', error)
+        return { error }
+      }
+
+      console.log('🔐 Sign in successful:', data.user?.email)
+      return { error: null }
     } catch (err) {
-      console.error('Sign in error:', err)
+      console.error('🔐 Sign in exception:', err)
       return { error: err }
     }
   }
@@ -159,13 +197,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo(() => ({
     user,
     profile,
-    loading,
-    isAuthenticated: !!user,
+    loading: loading || !mounted, // Keep loading until mounted to prevent hydration mismatch
+    isAuthenticated: !!user && mounted, // Only consider authenticated after mount
     signIn,
     signUp,
     signOut,
     resetPassword,
-  }), [user, profile, loading])
+  }), [user, profile, loading, mounted])
+
+  // Removed redundant auth cache initialization to eliminate triple-layer caching
+  // AuthProvider now serves as the single source of truth for auth state
+
+  // Prevent hydration mismatch by showing loading state until mounted
+  if (!mounted) {
+    return (
+      <AuthContext.Provider value={{
+        user: null,
+        profile: null,
+        loading: true,
+        isAuthenticated: false,
+        signIn,
+        signUp,
+        signOut,
+        resetPassword,
+      }}>
+        {children}
+      </AuthContext.Provider>
+    )
+  }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

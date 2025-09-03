@@ -3,8 +3,6 @@ import {
   Sparkles,
   Images,
   Settings,
-  LayoutGrid,
-  Code,
   Wrench
 } from 'lucide-react'
 import { NavigationRoute, NavigationConfig } from '@/contexts/NavigationContext'
@@ -82,19 +80,7 @@ export const navigationRoutes: NavigationRoute[] = [
     description: 'Account and application settings'
   },
   
-  // Development routes (only in development environment)
-  ...(process.env.NODE_ENV === 'development' ? [
-    {
-      id: 'test-components',
-      name: 'Component Tests',
-      href: '/test/components',
-      icon: Code,
-      category: 'development' as const,
-      requiresAuth: false,
-      visible: developmentOnly,
-      description: 'Component testing and development'
-    }
-  ] : []),
+
   
   // Admin-only routes
   {

@@ -16,9 +16,11 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  
+
   const { signIn } = useAuth()
   const router = useRouter()
+
+  // Production mode - no development bypasses
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -111,8 +113,8 @@ export default function LoginPage() {
           </form>
           
           <div className="mt-6 text-center space-y-2">
-            <Link 
-              href="/auth/reset-password" 
+            <Link
+              href="/auth/reset-password"
               className="text-sm text-primary hover:underline"
             >
               Forgot your password?
@@ -124,6 +126,8 @@ export default function LoginPage() {
               </Link>
             </div>
           </div>
+
+
         </CardContent>
       </Card>
     </div>

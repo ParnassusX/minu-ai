@@ -144,18 +144,23 @@ export function EnhancedImageCard({
 
       {/* Image Container - Optimized for Performance */}
       <div className={cn("relative overflow-hidden rounded-t-lg", cardSize)}>
-        <img
-          src={image.url}
-          alt={image.prompt}
-          className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-[1.03]"
-          loading="lazy"
-          decoding="async"
-          onLoad={(e) => {
-            // Fade in effect after load
-            e.currentTarget.style.opacity = '1'
-          }}
-          style={{ opacity: 0, transition: 'opacity 0.3s ease' }}
-        />
+        {!!image.url && (
+          <img
+            src={image.url}
+            alt={image.prompt || 'Generated image'}
+            className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-[1.03]"
+            loading="lazy"
+            decoding="async"
+            onLoad={(e) => {
+              e.currentTarget.style.opacity = '1'
+            }}
+            onError={(e) => {
+              e.currentTarget.style.opacity = '1'
+              e.currentTarget.src = '/placeholder-image.svg'
+            }}
+            style={{ opacity: 0, transition: 'opacity 0.3s ease' }}
+          />
+        )}
         
         {/* Overlay with quick actions */}
         <div className={cn(

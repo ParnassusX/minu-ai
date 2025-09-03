@@ -5,7 +5,7 @@
 
 import { processReplicateResponse, createDatabaseRecord, ProcessedFile } from '@/lib/storage/uploadUtils'
 import { StorageErrorHandler, StorageErrorCode } from '@/lib/storage/errorHandling'
-import { getCloudinaryStorageService } from '@/lib/storage/cloudinaryStorage'
+import { getUnifiedStorageService } from '@/lib/storage/unifiedStorage'
 
 export interface ReplicateApiResponse {
   id: string
@@ -57,7 +57,7 @@ export interface ProcessingResult {
 }
 
 export class ReplicateResponseProcessor {
-  private storageService = getCloudinaryStorageService()
+  private storageService = getUnifiedStorageService()
 
   /**
    * Process a complete Replicate API response
@@ -182,7 +182,7 @@ export class ReplicateResponseProcessor {
     // Analyze file properties
     const fileInfo = await this.analyzeFile(fileUrl)
     
-    // Create metadata for Cloudinary storage
+    // Create metadata for unified storage (Cloudinary with Supabase fallback)
     const metadata = {
       originalUrl: fileUrl,
       filename: fileInfo.filename,
@@ -192,7 +192,8 @@ export class ReplicateResponseProcessor {
       duration: fileInfo.duration,
       generatedAt: new Date().toISOString(),
       modelUsed: options.modelUsed,
-      prompt: options.prompt
+      prompt: options.prompt,
+      userId: options.userId
     }
 
     // Store file with Cloudinary (no progress callback support)
@@ -227,7 +228,7 @@ export class ReplicateResponseProcessor {
 
     return {
       originalUrl: fileUrl,
-      storedUrl: storageResult.data.publicUrl,
+      storedUrl: storageResult.data.secureUrl || storageResult.data.url,
       metadata: {
         ...storageResult.data.metadata,
         fileSize: 0 // Will be calculated during actual storage
@@ -235,8 +236,8 @@ export class ReplicateResponseProcessor {
       storageResult: {
         ...storageResult,
         data: storageResult.data ? {
-          path: storageResult.data.publicId || storageResult.data.publicUrl,
-          publicUrl: storageResult.data.publicUrl,
+          path: storageResult.data.publicId || storageResult.data.path || storageResult.data.url,
+          publicUrl: storageResult.data.secureUrl || storageResult.data.url,
           metadata: {
             ...storageResult.data.metadata,
             fileSize: 0 // Will be calculated during actual storage

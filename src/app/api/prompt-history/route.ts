@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { env } from '@/lib/config/environment'
+import { getAuthenticatedUser } from '@/lib/auth/server'
 
 interface PromptHistoryItem {
   id: string
@@ -16,23 +17,7 @@ interface PromptHistoryItem {
   lastUsed: string
 }
 
-// Helper function to get authenticated user (secure)
-async function getAuthenticatedUser() {
-  const supabase = createClient()
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
 
-  // In development mode, use the real authenticated user if available
-  if (process.env.NODE_ENV === 'development') {
-    console.log('Development mode: Using real authenticated user for prompt history access')
-    // Don't override with mock user - use the real authenticated user
-  }
-
-  if (authError || !user) {
-    return { user: null, error: 'Unauthorized' }
-  }
-
-  return { user, error: null }
-}
 
 export async function GET() {
   try {

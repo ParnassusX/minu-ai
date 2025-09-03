@@ -21,8 +21,7 @@ export class EnvironmentConfig {
       REPLICATE_WEBHOOK_SECRET: process.env.REPLICATE_WEBHOOK_SECRET,
 
       // Google Gemini API Configuration
-      GOOGLE_GEMINI_API_KEY: process.env.GOOGLE_GEMINI_API_KEY,
-      GEMINI_API_KEY: process.env.GEMINI_API_KEY, // Backward compatibility
+      GEMINI_API_KEY: process.env.GEMINI_API_KEY,
       GEMINI_API_URL: process.env.GEMINI_API_URL,
 
 
@@ -33,7 +32,10 @@ export class EnvironmentConfig {
       NEXTAUTH_URL: process.env.NEXTAUTH_URL,
     }
 
-    this.validateRequiredVariables()
+    // Validate required variables in production
+    if (process.env.NODE_ENV === 'production') {
+      this.validateRequiredVariables()
+    }
   }
 
   public static getInstance(): EnvironmentConfig {
@@ -78,10 +80,19 @@ export class EnvironmentConfig {
 
   // Supabase Configuration
   public getSupabaseConfig() {
+    const url = this.get('NEXT_PUBLIC_SUPABASE_URL')
+    const anonKey = this.get('NEXT_PUBLIC_SUPABASE_ANON_KEY')
+    const serviceRoleKey = this.get('SUPABASE_SERVICE_ROLE_KEY')
+
+    // Validate required configuration
+    if (!url || !anonKey) {
+      throw new Error('Missing required Supabase configuration. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY environment variables.')
+    }
+
     return {
-      url: this.getRequired('NEXT_PUBLIC_SUPABASE_URL'),
-      anonKey: this.getRequired('NEXT_PUBLIC_SUPABASE_ANON_KEY'),
-      serviceRoleKey: this.get('SUPABASE_SERVICE_ROLE_KEY'),
+      url,
+      anonKey,
+      serviceRoleKey,
     }
   }
 
@@ -101,7 +112,7 @@ export class EnvironmentConfig {
   // Gemini Configuration
   public getGeminiConfig() {
     return {
-      apiKey: this.get('GOOGLE_GEMINI_API_KEY') || this.get('GEMINI_API_KEY'),
+      apiKey: this.get('GEMINI_API_KEY'),
       apiUrl: this.get('GEMINI_API_URL') || 'https://generativelanguage.googleapis.com',
       defaultModel: 'gemini-1.5-flash',
       maxTokens: 1000,
@@ -138,7 +149,6 @@ export class EnvironmentConfig {
     return {
       enablePromptEnhancement: !!this.getGeminiConfig().apiKey,
       enableWebhooks: !!this.getReplicateConfig().webhookUrl,
-      enableDevelopmentMode: this.isDevelopment(),
       enableErrorReporting: this.isProduction(),
     }
   }
@@ -149,7 +159,7 @@ export class EnvironmentConfig {
   }
 
   public hasGeminiConfig(): boolean {
-    return !!(this.get('GOOGLE_GEMINI_API_KEY') || this.get('GEMINI_API_KEY'))
+    return !!this.get('GEMINI_API_KEY')
   }
 
   public hasSupabaseServiceRole(): boolean {
@@ -161,6 +171,9 @@ export class EnvironmentConfig {
 
 // Singleton instance
 export const env = EnvironmentConfig.getInstance()
+
+// Export the class as Environment for backward compatibility
+export const Environment = EnvironmentConfig
 
 // Convenience exports for common configurations
 export const supabaseConfig = env.getSupabaseConfig()

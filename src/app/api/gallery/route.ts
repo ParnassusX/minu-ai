@@ -4,29 +4,17 @@ import { env, performanceConfig } from '@/lib/config/environment'
 import { Database } from '@/types/database'
 import { getUnifiedStorageService } from '@/lib/storage/unifiedStorage'
 import { StorageErrorHandler } from '@/lib/storage/errorHandling'
+import { withOptimizedAuth } from '@/lib/auth/optimizedAuth'
+import { getAuthenticatedUser } from '@/lib/auth/server'
 
 import { GalleryImage } from '@/types/gallery'
 
-// Helper function to get authenticated user (secure)
-async function getAuthenticatedUser() {
-  const supabase = createClient()
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
-
-  // In development mode, use the real authenticated user if available
-  if (process.env.NODE_ENV === 'development') {
-    console.log('Development mode: Using real authenticated user for gallery access')
-    // Don't override with mock user - use the real authenticated user
-  }
-
-  if (authError || !user) {
-    return { user: null, error: 'Unauthorized' }
-  }
-
-  return { user, error: null }
-}
+// Cache for gallery data to reduce database queries
+const galleryCache = new Map<string, { data: any, timestamp: number }>()
+const GALLERY_CACHE_DURATION = 30000 // 30 seconds cache
 
 // Helper function to convert database row to GalleryImage
-function dbRowToGalleryImage(row: Database['public']['Tables']['images']['Row']): GalleryImage {
+function dbRowToGalleryImage(row: any): GalleryImage {
   // Check if URL is from persistent storage (Cloudinary/Supabase) or temporary (Replicate)
   const isPersistent = row.file_path.includes('cloudinary.com') ||
                       row.file_path.includes('supabase.co/storage') ||
@@ -65,9 +53,16 @@ function dbRowToGalleryImage(row: Database['public']['Tables']['images']['Row'])
 }
 
 export async function GET(request: NextRequest) {
+  const startTime = performance.now()
+
   try {
-    // Check authentication
-    const { user, error: authError } = await getAuthenticatedUser()
+    // Use optimized authentication with caching
+    const { user, error: authError, performance: authPerf } = await withOptimizedAuth(request, {
+      requireAuth: true,
+      allowCache: true,
+      fastValidation: false // Need full user data for gallery
+    })
+
     if (authError || !user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -75,7 +70,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Parse pagination parameters with performance optimization
+    // Parse pagination parameters
     const { searchParams } = new URL(request.url)
     const page = Math.max(1, parseInt(searchParams.get('page') || '1'))
     const limit = Math.min(
@@ -84,7 +79,26 @@ export async function GET(request: NextRequest) {
     )
     const offset = (page - 1) * limit
 
-    // Fetch user's images from database with optimized query (select only needed fields)
+    // Create cache key for this user's gallery page
+    const cacheKey = `gallery:${user.id}:${page}:${limit}`
+
+    // Check cache first
+    const cached = galleryCache.get(cacheKey)
+    if (cached && (Date.now() - cached.timestamp) < GALLERY_CACHE_DURATION) {
+      const endTime = performance.now()
+      return NextResponse.json({
+        ...cached.data,
+        performance: {
+          totalTime: Math.round(endTime - startTime),
+          authTime: authPerf.duration,
+          dbTime: 0,
+          fromCache: true
+        }
+      })
+    }
+
+    // Fetch from database with optimized query
+    const dbStartTime = performance.now()
     const supabase = createClient()
     const { data: images, error: dbError } = await supabase
       .from('images')
@@ -93,39 +107,68 @@ export async function GET(request: NextRequest) {
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1)
 
+    const dbEndTime = performance.now()
+    const dbTime = Math.round(dbEndTime - dbStartTime)
+
     if (dbError) {
       console.error('Database error fetching images:', dbError)
-
-      // In development mode, return empty array instead of error
-      if (process.env.NODE_ENV === 'development') {
-        console.log('Development mode: Returning empty gallery due to database error')
-        return NextResponse.json({
-          success: true,
-          images: [],
-          pagination: {
-            page,
-            limit,
-            hasMore: false
-          }
-        })
-      }
+      const endTime = performance.now()
 
       return NextResponse.json(
-        { error: 'Failed to fetch gallery images' },
+        {
+          error: 'Database error',
+          performance: {
+            totalTime: Math.round(endTime - startTime),
+            authTime: authPerf.duration,
+            dbTime,
+            error: true
+          }
+        },
         { status: 500 }
       )
     }
 
-    // Convert database rows to GalleryImage format
-    const galleryImages = images.map((row: any) => dbRowToGalleryImage(row))
+    // Convert database rows to gallery images
+    const galleryImages = (images || []).map(dbRowToGalleryImage)
 
-    return NextResponse.json({
+    // Prepare response data
+    const responseData = {
       success: true,
       images: galleryImages,
       pagination: {
         page,
         limit,
-        hasMore: images.length === limit
+        total: galleryImages.length,
+        hasMore: galleryImages.length === limit
+      },
+      metadata: {
+        totalImages: galleryImages.length,
+        userId: user.id
+      }
+    }
+
+    // Cache the response
+    galleryCache.set(cacheKey, { data: responseData, timestamp: Date.now() })
+
+    // Clean old cache entries
+    if (galleryCache.size > 50) {
+      const now = Date.now()
+      for (const [key, value] of galleryCache.entries()) {
+        if (now - value.timestamp > GALLERY_CACHE_DURATION * 2) {
+          galleryCache.delete(key)
+        }
+      }
+    }
+
+    const endTime = performance.now()
+
+    return NextResponse.json({
+      ...responseData,
+      performance: {
+        totalTime: Math.round(endTime - startTime),
+        authTime: authPerf.duration,
+        dbTime,
+        fromCache: false
       }
     })
   } catch (error) {

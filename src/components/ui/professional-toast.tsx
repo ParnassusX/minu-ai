@@ -13,7 +13,7 @@ import {
   Zap
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { LoadingSpinner, LoadingDots } from './loading'
+// Removed LoadingSpinner, LoadingDots - using Loader2 directly
 
 // Professional Toast with Icons and Progress
 const professionalToastVariants = cva(
@@ -86,7 +86,7 @@ const ProfessionalToast = forwardRef<HTMLDivElement, ProfessionalToastProps>(
         {/* Icon */}
         <div className="flex-shrink-0 mt-0.5">
           {variant === 'loading' ? (
-            <LoadingSpinner size="sm" variant="premium" />
+            <Loader2 className="h-4 w-4 animate-spin text-blue-500" />
           ) : (
             <Icon className="h-5 w-5" />
           )}
