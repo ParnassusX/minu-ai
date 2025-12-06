@@ -10,6 +10,17 @@ export const metadata: Metadata = {
   title: 'Minu.AI - AI Image Generation Platform',
   description: 'Create stunning images with FLUX AI technology',
   keywords: ['AI', 'image generation', 'FLUX', 'artificial intelligence'],
+  icons: {
+    icon: '/favicon.svg',
+    apple: '/logo.svg',
+  },
+  manifest: '/manifest.json',
+  openGraph: {
+    title: 'Minu.AI - AI Image Generation Platform',
+    description: 'Create stunning images with FLUX AI technology',
+    type: 'website',
+    images: ['/logo.svg'],
+  },
 }
 
 export default function RootLayout({
