@@ -2,7 +2,14 @@ import { NextRequest, NextResponse } from 'next/server'
 import { PromptService } from '@/lib/prompts/promptService'
 import { getAuthenticatedUser } from '@/lib/auth/server'
 
-const promptService = new PromptService()
+// Lazy instantiate to avoid build-time initialization
+let _promptService: PromptService | null = null
+function getPromptService() {
+  if (!_promptService) {
+    _promptService = new PromptService()
+  }
+  return _promptService
+}
 
 // GET /api/prompts - List user's prompts with filtering and search
 export async function GET(request: NextRequest) {
@@ -20,6 +27,7 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '20')
     const sort = searchParams.get('sort') || 'recent' // recent, success_rate, usage
 
+    const promptService = getPromptService()
     let prompts
 
     if (query) {
@@ -86,7 +94,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Save prompt
-    const promptId = await promptService.savePromptFromGeneration({
+    const promptId = await getPromptService().savePromptFromGeneration({
       userId: user.id,
       content,
       title,
