@@ -782,33 +782,88 @@ const seedream45Model: ModelSchema = {
   updatedAt: '2025-12-01T00:00:00Z'
 }
 
-// Kling 1.6 Pro - Advanced Video Generation - NEW MODEL
-const kling16ProModel: ModelSchema = {
-  id: 'kling-1.6-pro',
-  name: 'Kling 1.6 Pro',
-  description: 'State-of-the-art video generation with extended duration support and superior motion quality',
+// Kling 2.6 Pro - Advanced Video Generation - NEW MODEL (Updated from 1.6)
+const kling26ProModel: ModelSchema = {
+  id: 'kling-2.6-pro',
+  name: 'Kling 2.6 Pro',
+  description: 'Latest state-of-the-art video generation with extended duration, 4K/8K support, and superior motion quality',
   owner: 'kuaishou',
-  replicateModel: 'kuaishou/kling-1.6-pro',
+  replicateModel: 'kuaishou/kling-2.6-pro',
   category: 'video-generation',
   supportedModes: ['video'],
   provider: 'Kuaishou',
-  version: '1.6',
+  version: '2.6',
 
   parameters: [
     createParameter('prompt', 'string', true, '', [], 'Text prompt for video generation', 0),
     createParameter('image', 'file', false, undefined, [], 'Input image for image-to-video generation', 1),
-    createParameter('duration', 'select', false, 5, [3, 5, 10, 15], 'Video duration in seconds', 2),
-    createParameter('resolution', 'select', false, '1080p', ['720p', '1080p', '4k'], 'Video resolution', 3),
+    createParameter('end_image', 'file', false, undefined, [], 'End frame image for frame-to-frame generation', 2),
+    createParameter('duration', 'select', false, 5, [3, 5, 10, 15, 30], 'Video duration in seconds', 3),
+    createParameter('resolution', 'select', false, '1080p', ['720p', '1080p', '4k', '8k'], 'Video resolution', 4),
     createParameter('aspect_ratio', 'select', false, '16:9',
-      ['16:9', '9:16', '1:1', '4:3', '3:4'],
-      'Video aspect ratio', 4),
-    createParameter('fps', 'select', false, 30, [24, 30, 60], 'Frame rate', 5),
-    createParameter('motion_strength', 'number', false, 1.0, [], 'Motion intensity (0.5 to 2.0)', 6),
-    createParameter('seed', 'number', false, undefined, [], 'Random seed for reproducibility', 7)
+      ['16:9', '9:16', '1:1', '4:3', '3:4', '21:9'],
+      'Video aspect ratio', 5),
+    createParameter('fps', 'select', false, 30, [24, 30, 60, 120], 'Frame rate', 6),
+    createParameter('motion_strength', 'number', false, 1.0, [], 'Motion intensity (0.5 to 2.0)', 7),
+    createParameter('camera_control', 'select', false, 'auto', 
+      ['auto', 'fixed', 'pan_left', 'pan_right', 'zoom_in', 'zoom_out', 'orbit'],
+      'Camera movement control', 8),
+    createParameter('seed', 'number', false, undefined, [], 'Random seed for reproducibility', 9)
   ],
 
   pricing: {
-    costPerSecond: 0.08,
+    costPerSecond: 0.10,
+    currency: 'USD'
+  },
+
+  capabilities: {
+    supportsImageInput: true,
+    supportsMultipleImages: true,
+    maxImages: 2,
+    supportedFormats: ['mp4', 'webm', 'mov'],
+    maxResolution: '7680x4320',
+    supportedAspectRatios: ['16:9', '9:16', '1:1', '4:3', '3:4', '21:9']
+  },
+
+  performance: {
+    speed: 'slow',
+    averageTime: 150.0,
+    reliability: 0.96
+  },
+
+  isActive: true,
+  isPriority: true,
+  tags: ['video-generation', 'high-quality', '4k', '8k', 'extended-duration', 'frame-to-frame', 'new'],
+  createdAt: '2025-12-01T00:00:00Z',
+  updatedAt: '2025-12-07T00:00:00Z'
+}
+
+// Kling 0.1 - Fast Video Generation - NEW MODEL
+const kling01Model: ModelSchema = {
+  id: 'kling-0.1',
+  name: 'Kling 0.1 Fast',
+  description: 'Fast and efficient video generation for quick iterations and previews',
+  owner: 'kuaishou',
+  replicateModel: 'kuaishou/kling-0.1',
+  category: 'video-generation',
+  supportedModes: ['video'],
+  provider: 'Kuaishou',
+  version: '0.1',
+
+  parameters: [
+    createParameter('prompt', 'string', true, '', [], 'Text prompt for video generation', 0),
+    createParameter('image', 'file', false, undefined, [], 'Input image for image-to-video generation', 1),
+    createParameter('duration', 'select', false, 3, [2, 3, 5], 'Video duration in seconds', 2),
+    createParameter('resolution', 'select', false, '720p', ['480p', '720p'], 'Video resolution', 3),
+    createParameter('aspect_ratio', 'select', false, '16:9',
+      ['16:9', '9:16', '1:1'],
+      'Video aspect ratio', 4),
+    createParameter('fps', 'select', false, 24, [24, 30], 'Frame rate', 5),
+    createParameter('seed', 'number', false, undefined, [], 'Random seed for reproducibility', 6)
+  ],
+
+  pricing: {
+    costPerSecond: 0.03,
     currency: 'USD'
   },
 
@@ -816,22 +871,22 @@ const kling16ProModel: ModelSchema = {
     supportsImageInput: true,
     supportsMultipleImages: false,
     maxImages: 1,
-    supportedFormats: ['mp4', 'webm'],
-    maxResolution: '3840x2160',
-    supportedAspectRatios: ['16:9', '9:16', '1:1', '4:3', '3:4']
+    supportedFormats: ['mp4'],
+    maxResolution: '1280x720',
+    supportedAspectRatios: ['16:9', '9:16', '1:1']
   },
 
   performance: {
-    speed: 'slow',
-    averageTime: 120.0,
-    reliability: 0.94
+    speed: 'fast',
+    averageTime: 30.0,
+    reliability: 0.93
   },
 
   isActive: true,
   isPriority: false,
-  tags: ['video-generation', 'high-quality', '4k', 'extended-duration', 'new'],
+  tags: ['video-generation', 'fast', 'preview', 'affordable', 'new'],
   createdAt: '2025-12-01T00:00:00Z',
-  updatedAt: '2025-12-01T00:00:00Z'
+  updatedAt: '2025-12-07T00:00:00Z'
 }
 
 // Clarity Upscaler - Advanced AI Upscaling - NEW MODEL
@@ -903,7 +958,8 @@ export const NEW_GENERATION_MODELS: ModelSchema[] = [
 export const VIDEO_MODELS: ModelSchema[] = [
   seedance1LiteModel,
   seedance1ProModel,
-  kling16ProModel
+  kling26ProModel,
+  kling01Model
 ]
 
 // Models recommended for batch/e-commerce operations
@@ -940,6 +996,7 @@ export {
   nanoBanana2ProModel,
   zImageModel,
   seedream45Model,
-  kling16ProModel,
+  kling26ProModel,
+  kling01Model,
   clarityUpscalerModel
 }
