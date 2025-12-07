@@ -36,7 +36,14 @@ export interface PromptSaveOptions {
 }
 
 export class PromptService {
-  private supabase = createServiceClient()
+  private _supabase: ReturnType<typeof createServiceClient> | null = null
+  
+  private get supabase() {
+    if (!this._supabase) {
+      this._supabase = createServiceClient()
+    }
+    return this._supabase
+  }
 
   /**
    * Automatically save a prompt during image generation

@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
 import { ThemeProvider } from '@/components/providers/ThemeProvider'
 import { AuthProvider } from '@/lib/auth/AuthProvider'
 import { GalleryProvider } from '@/contexts/GalleryContext'
@@ -7,12 +6,21 @@ import { ErrorBoundary } from '@/components/ui/error-boundary'
 import { Toaster } from '@/components/ui/toaster'
 import '@/styles/globals.css'
 
-const inter = Inter({ subsets: ['latin'] })
-
 export const metadata: Metadata = {
   title: 'Minu.AI - AI Image Generation Platform',
   description: 'Create stunning images with FLUX AI technology',
   keywords: ['AI', 'image generation', 'FLUX', 'artificial intelligence'],
+  icons: {
+    icon: '/favicon.svg',
+    apple: '/logo.svg',
+  },
+  manifest: '/manifest.json',
+  openGraph: {
+    title: 'Minu.AI - AI Image Generation Platform',
+    description: 'Create stunning images with FLUX AI technology',
+    type: 'website',
+    images: ['/logo.svg'],
+  },
 }
 
 export default function RootLayout({
@@ -22,7 +30,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className="font-sans antialiased">
         <ErrorBoundary>
           <ThemeProvider
             attribute="class"

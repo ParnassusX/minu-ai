@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <defs>
+    <linearGradient id="placeholderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f3f4f6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e5e7eb;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="400" height="300" fill="url(#placeholderGrad)"/>
+  
+  <!-- Image icon -->
+  <g transform="translate(160, 100)">
+    <rect x="0" y="0" width="80" height="60" rx="4" fill="#9ca3af" opacity="0.5"/>
+    <circle cx="25" cy="20" r="8" fill="#9ca3af" opacity="0.7"/>
+    <polygon points="10,55 40,30 55,45 80,25 80,55" fill="#9ca3af" opacity="0.6"/>
+  </g>
+  
+  <!-- Loading text -->
+  <text x="200" y="200" text-anchor="middle" fill="#9ca3af" font-family="Arial, sans-serif" font-size="14">Loading image...</text>
+</svg>
