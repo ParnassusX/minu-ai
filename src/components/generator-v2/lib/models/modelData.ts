@@ -622,24 +622,301 @@ const ultimateSDUpscaleModel: ModelSchema = {
   updatedAt: '2025-08-26T00:00:00Z'
 }
 
+// =============================================================================
+// NEW DECEMBER 2025 MODELS
+// =============================================================================
+
+// Nano Banana 2 (Pro) - Enhanced High-Fidelity Image Editing - NEW MODEL
+const nanoBanana2ProModel: ModelSchema = {
+  id: 'nano-banana-2-pro',
+  name: 'Nano Banana 2 Pro',
+  description: 'Advanced high-fidelity image editing with multi-image support, perfect for product photography and batch operations',
+  owner: 'google',
+  replicateModel: 'google/nano-banana-2',
+  category: 'image-editing',
+  supportedModes: ['images'],
+  provider: 'Google',
+  version: '2.0',
+
+  parameters: [
+    createParameter('prompt', 'string', true, '', [], 'Text description of the image transformation you want', 0),
+    createParameter('image_input', 'file', true, undefined, [], 'Input images to transform (supports up to 5 images for batch)', 1),
+    createParameter('style', 'select', false, 'high_fidelity', 
+      ['high_fidelity', 'photorealistic', 'artistic', 'commercial', 'product'],
+      'Output style preset', 2),
+    createParameter('aspect_ratio', 'select', false, 'match_input_image',
+      ['match_input_image', '1:1', '16:9', '9:16', '4:3', '3:4', '4:5', '5:4'],
+      'Aspect ratio of the generated image', 3),
+    createParameter('output_format', 'select', false, 'png', ['jpg', 'png', 'webp'], 'Format of the output image', 4),
+    createParameter('quality', 'select', false, 'high', ['standard', 'high', 'ultra'], 'Output quality level', 5)
+  ],
+
+  pricing: {
+    costPerImage: 0.006,
+    currency: 'USD'
+  },
+
+  capabilities: {
+    supportsImageInput: true,
+    supportsMultipleImages: true,
+    maxImages: 5,
+    supportedFormats: ['jpg', 'png', 'webp'],
+    maxResolution: '2048x2048',
+    supportedAspectRatios: ['match_input_image', '1:1', '16:9', '9:16', '4:3', '3:4', '4:5', '5:4']
+  },
+
+  performance: {
+    speed: 'medium',
+    averageTime: 12,
+    reliability: 0.96
+  },
+
+  tags: ['editing', 'high-fidelity', 'batch', 'product-photography', 'google', 'pro', 'new', 'context-aware'],
+  isActive: true,
+  isPriority: true,
+  createdAt: '2025-12-01T00:00:00Z',
+  updatedAt: '2025-12-01T00:00:00Z'
+}
+
+// Z-Image - Fast Batch Image Processing - NEW MODEL
+const zImageModel: ModelSchema = {
+  id: 'z-image',
+  name: 'Z-Image',
+  description: 'Ultra-fast batch image processing with style consistency, ideal for e-commerce and catalog generation',
+  owner: 'z-labs',
+  replicateModel: 'z-labs/z-image',
+  category: 'image-generation',
+  supportedModes: ['images'],
+  provider: 'Z-Labs',
+  version: 'latest',
+
+  parameters: [
+    createParameter('prompt', 'string', true, '', [], 'Text description for image generation', 0),
+    createParameter('reference_image', 'file', false, undefined, [], 'Reference image for style consistency', 1),
+    createParameter('batch_size', 'select', false, 1, [1, 4, 8, 16], 'Number of images to generate', 2),
+    createParameter('aspect_ratio', 'select', false, '1:1',
+      ['1:1', '16:9', '9:16', '4:3', '3:4', '4:5', '5:4', '2:3', '3:2'],
+      'Aspect ratio of generated images', 3),
+    createParameter('style_strength', 'number', false, 0.7, [], 'Style transfer strength (0.0 to 1.0)', 4),
+    createParameter('output_format', 'select', false, 'jpg', ['jpg', 'png', 'webp'], 'Output format', 5),
+    createParameter('seed', 'number', false, undefined, [], 'Random seed for reproducibility', 6)
+  ],
+
+  pricing: {
+    costPerImage: 0.002,
+    currency: 'USD'
+  },
+
+  capabilities: {
+    supportsImageInput: true,
+    supportsMultipleImages: false,
+    maxImages: 1,
+    supportedFormats: ['jpg', 'png', 'webp'],
+    maxResolution: '1024x1024',
+    supportedAspectRatios: ['1:1', '16:9', '9:16', '4:3', '3:4', '4:5', '5:4', '2:3', '3:2']
+  },
+
+  performance: {
+    speed: 'fast',
+    averageTime: 3,
+    reliability: 0.94
+  },
+
+  tags: ['batch', 'fast', 'e-commerce', 'catalog', 'style-consistent', 'new'],
+  isActive: true,
+  isPriority: false,
+  createdAt: '2025-12-01T00:00:00Z',
+  updatedAt: '2025-12-01T00:00:00Z'
+}
+
+// Seedream 4.5 - Next-Gen Image Generation - NEW MODEL
+const seedream45Model: ModelSchema = {
+  id: 'seedream-4.5',
+  name: 'Seedream 4.5',
+  description: 'Next-generation image generation with improved photorealism, artistic styles, and better prompt understanding',
+  owner: 'seedream',
+  replicateModel: 'seedream/seedream-4.5',
+  category: 'image-generation',
+  supportedModes: ['images'],
+  provider: 'Seedream',
+  version: '4.5',
+
+  parameters: [
+    createParameter('prompt', 'string', true, '', [], 'Text description of what you want to generate', 0),
+    createParameter('style', 'select', false, 'photorealistic',
+      ['photorealistic', 'artistic', 'anime', 'illustration', 'cinematic', '3d-render'],
+      'Visual style preset', 1),
+    createParameter('aspect_ratio', 'select', false, '1:1',
+      ['1:1', '16:9', '9:16', '4:3', '3:4', '3:2', '2:3', '21:9', '9:21'],
+      'Aspect ratio of the generated image', 2),
+    createParameter('negative_prompt', 'string', false, '', [], 'What to avoid in the generation', 3),
+    createParameter('guidance_scale', 'number', false, 7.5, [], 'How closely to follow the prompt (1-20)', 4),
+    createParameter('output_format', 'select', false, 'png', ['jpg', 'png'], 'Output format for the generated image', 5),
+    createParameter('seed', 'number', false, undefined, [], 'Random seed for reproducible generation', 6)
+  ],
+
+  pricing: {
+    costPerImage: 0.04,
+    currency: 'USD'
+  },
+
+  capabilities: {
+    supportsImageInput: false,
+    supportsMultipleImages: false,
+    maxImages: 1,
+    supportedFormats: ['jpg', 'png'],
+    maxResolution: '2048x2048',
+    supportedAspectRatios: ['1:1', '16:9', '9:16', '4:3', '3:4', '3:2', '2:3', '21:9', '9:21']
+  },
+
+  performance: {
+    speed: 'medium',
+    averageTime: 8.0,
+    reliability: 0.97
+  },
+
+  isActive: true,
+  isPriority: true,
+  tags: ['photorealistic', 'artistic', 'high-quality', 'seedream', 'new'],
+  createdAt: '2025-12-01T00:00:00Z',
+  updatedAt: '2025-12-01T00:00:00Z'
+}
+
+// Kling 1.6 Pro - Advanced Video Generation - NEW MODEL
+const kling16ProModel: ModelSchema = {
+  id: 'kling-1.6-pro',
+  name: 'Kling 1.6 Pro',
+  description: 'State-of-the-art video generation with extended duration support and superior motion quality',
+  owner: 'kuaishou',
+  replicateModel: 'kuaishou/kling-1.6-pro',
+  category: 'video-generation',
+  supportedModes: ['video'],
+  provider: 'Kuaishou',
+  version: '1.6',
+
+  parameters: [
+    createParameter('prompt', 'string', true, '', [], 'Text prompt for video generation', 0),
+    createParameter('image', 'file', false, undefined, [], 'Input image for image-to-video generation', 1),
+    createParameter('duration', 'select', false, 5, [3, 5, 10, 15], 'Video duration in seconds', 2),
+    createParameter('resolution', 'select', false, '1080p', ['720p', '1080p', '4k'], 'Video resolution', 3),
+    createParameter('aspect_ratio', 'select', false, '16:9',
+      ['16:9', '9:16', '1:1', '4:3', '3:4'],
+      'Video aspect ratio', 4),
+    createParameter('fps', 'select', false, 30, [24, 30, 60], 'Frame rate', 5),
+    createParameter('motion_strength', 'number', false, 1.0, [], 'Motion intensity (0.5 to 2.0)', 6),
+    createParameter('seed', 'number', false, undefined, [], 'Random seed for reproducibility', 7)
+  ],
+
+  pricing: {
+    costPerSecond: 0.08,
+    currency: 'USD'
+  },
+
+  capabilities: {
+    supportsImageInput: true,
+    supportsMultipleImages: false,
+    maxImages: 1,
+    supportedFormats: ['mp4', 'webm'],
+    maxResolution: '3840x2160',
+    supportedAspectRatios: ['16:9', '9:16', '1:1', '4:3', '3:4']
+  },
+
+  performance: {
+    speed: 'slow',
+    averageTime: 120.0,
+    reliability: 0.94
+  },
+
+  isActive: true,
+  isPriority: false,
+  tags: ['video-generation', 'high-quality', '4k', 'extended-duration', 'new'],
+  createdAt: '2025-12-01T00:00:00Z',
+  updatedAt: '2025-12-01T00:00:00Z'
+}
+
+// Clarity Upscaler - Advanced AI Upscaling - NEW MODEL
+const clarityUpscalerModel: ModelSchema = {
+  id: 'clarity-upscaler',
+  name: 'Clarity Upscaler',
+  description: 'AI-powered image upscaling with detail enhancement and artifact removal, up to 8x scaling',
+  owner: 'philz1337x',
+  replicateModel: 'philz1337x/clarity-upscaler',
+  category: 'image-enhancement',
+  supportedModes: ['enhance'],
+  provider: 'Philz1337x',
+  version: 'latest',
+
+  parameters: [
+    createParameter('image', 'file', true, undefined, [], 'Input image to upscale', 0),
+    createParameter('scale', 'select', false, 2, [2, 4, 6, 8], 'Upscaling factor', 1),
+    createParameter('denoise', 'number', false, 0.5, [], 'Denoising strength (0.0 to 1.0)', 2),
+    createParameter('sharpen', 'number', false, 0.3, [], 'Sharpening strength (0.0 to 1.0)', 3),
+    createParameter('face_enhance', 'boolean', false, true, [], 'Enable face restoration', 4),
+    createParameter('output_format', 'select', false, 'png', ['jpg', 'png', 'webp'], 'Output format', 5)
+  ],
+
+  pricing: {
+    costPerImage: 0.003,
+    currency: 'USD'
+  },
+
+  capabilities: {
+    supportsImageInput: true,
+    supportsMultipleImages: false,
+    maxImages: 1,
+    supportedFormats: ['jpg', 'png', 'webp'],
+    maxResolution: '8192x8192',
+    supportedAspectRatios: ['match_input_image']
+  },
+
+  performance: {
+    speed: 'fast',
+    averageTime: 5,
+    reliability: 0.97
+  },
+
+  tags: ['upscaling', 'enhancement', '8x', 'face-restoration', 'artifact-removal', 'new'],
+  isActive: true,
+  isPriority: false,
+  createdAt: '2025-12-01T00:00:00Z',
+  updatedAt: '2025-12-01T00:00:00Z'
+}
+
 // New enhancement models
 export const ENHANCEMENT_MODELS: ModelSchema[] = [
   realESRGANModel,
   swinIRModel,
-  ultimateSDUpscaleModel
+  ultimateSDUpscaleModel,
+  clarityUpscalerModel
 ]
 
 // New generation models
 export const NEW_GENERATION_MODELS: ModelSchema[] = [
   gemini25FlashImageModel,
-  nanoBananaModel
+  nanoBananaModel,
+  nanoBanana2ProModel,
+  zImageModel,
+  seedream45Model
 ]
 
-// Export all models array (12 total models)
-export const ALL_MODELS: ModelSchema[] = [
-  ...PRIORITY_MODELS,
+// Video generation models
+export const VIDEO_MODELS: ModelSchema[] = [
   seedance1LiteModel,
   seedance1ProModel,
+  kling16ProModel
+]
+
+// Models recommended for batch/e-commerce operations
+export const BATCH_RECOMMENDED_MODELS: ModelSchema[] = [
+  nanoBanana2ProModel,
+  zImageModel,
+  fluxKontextProModel
+]
+
+// Export all models array (18 total models)
+export const ALL_MODELS: ModelSchema[] = [
+  ...PRIORITY_MODELS,
+  ...VIDEO_MODELS,
   ...NEW_GENERATION_MODELS,
   ...ENHANCEMENT_MODELS
 ]
@@ -658,5 +935,11 @@ export {
   nanoBananaModel,
   realESRGANModel,
   swinIRModel,
-  ultimateSDUpscaleModel
+  ultimateSDUpscaleModel,
+  // December 2025 models
+  nanoBanana2ProModel,
+  zImageModel,
+  seedream45Model,
+  kling16ProModel,
+  clarityUpscalerModel
 }
